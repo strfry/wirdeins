@@ -1,0 +1,165 @@
+   
+<!DOCTYPE html>
+<html>
+<head>
+<base href="/wirdeins/">
+<meta charset="UTF-8">
+<meta name="description" content="The quick online dictionary of Prussian language in 6 languages: Sambian and Pomesanian dialects">
+<meta name="keywords" content="Prūsa, Prussia, Preussen, Prusy, Пруссия, Prūsija, prūsiska bilā, prussian language, język pruski, прусский язык, preußische Sprache, Altpreußische Sprache, prūšu valoda, prūsų kalba, wirdeīns, słownik, dictionary, žodynas, словарь, vārdnīca, Wörterbuch, Deutsch-Prußisches Wörterbuch, English-Prussian dictionary, latviešu-prūšu vārdnīca, lietuvių-prūsų kalbų žodynas, słownik polsko-pruski, прусско-русский словарь, пруссы, prūsai, senprūsiai, Prußen, Prūši, Prussians, Old Prussians">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+
+		<link rel="canonical" href="http://wirdeins.twanksta.org/">
+		<meta property="og:description" content="The quick online dictionary of Prussian language in 6 languages: Sambian and Pomesanian dialects">
+
+		<meta property="og:type" content="website">
+		<meta property="og:image" content="http://wirdeins.twanksta.org/icons/mstile-310x310.png">
+		<meta property="og:title" content="Prūsisks wirdeīns">
+		<meta property="og:url" content="http://wirdeins.twanksta.org/">
+		<meta property="og:site_name" content="Prūsisks wirdeīns">
+        <meta name="author" content="Rantawa.org">
+
+<link rel='stylesheet' type='text/css' href='source/jquery.fancybox.css' media='screen' />
+<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-touch-icon-57x57.png" />
+<link rel="apple-touch-icon" sizes="114x114" href="icons/apple-touch-icon-114x114.png" />
+<link rel="apple-touch-icon" sizes="72x72" href="icons/apple-touch-icon-72x72.png" />
+<link rel="apple-touch-icon" sizes="144x144" href="icons/apple-touch-icon-144x144.png" />
+<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-touch-icon-60x60.png" />
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" sizes="76x76" href="icons/apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152x152.png" />
+<link rel="icon" type="image/png" href="icons/favicon-196x196.png" sizes="196x196" />
+<link rel="icon" type="image/png" href="icons/favicon-160x160.png" sizes="160x160" />
+<link rel="icon" type="image/png" href="icons/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/png" href="icons/favicon-32x32.png" sizes="32x32" />
+<link rel="icon" type="image/png" href="icons/favicon-16x16.png" sizes="16x16" />
+<meta name="msapplication-TileColor" content="#da532c" />
+<meta name="msapplication-TileImage" content="/icons/mstile-144x144.png" />
+
+<title>Dictionary of Prussian language</title>
+
+<link rel='stylesheet' href='source/style_a.css'>
+
+</head>
+<body>
+<noscript>
+  <p class="alert">
+    Please enable Javascript to browse this site.
+  </p>
+</noscript>
+
+<div id="overlay" class="overlay overlay-hugeinc">
+	<button type="button" class="overlay-close">Close</button>
+			<div>
+				<h2>Help</h2>
+				<p><b>Prussian language</b> belongs to the Baltic languages of the Indo-European family of languages. Inside of Baltic languages Prussian language belongs to the Western-Baltic languages. The language has a whole number of traits in common with Curonian language. Inside of Western-Baltic languages Prussian language is closely related to Sudovian (Yotvingian) language.</p>
+<p>The quick online dictionary of Prussian language is in 6 languages: English, German, Lithuanian, Latvian, Polish and Russian.</p>
+<p>You can search using a dictionary form that is using an infinitive or a noun in singular, nominative.</p>
+<p>You can also search a part of the word or its ending or beginning.</p>
+<p>Direction of translation (Prussian > your language or vice versa) is automatically detected.</p>
+<p>Writing Prussian words without diacritics is possible in this way use Latin characters (instead of <b>ā, ū, ī, ō</b>  use <b>a, u, i, o</b>).</p>
+<p>Some words like <a href="#warskaits">wārskaits</a>, <a href="#patals">Patals</a>, <a href="#anzans">anzans</a>, etc. have a mythological description (that is attempt to create a Prussian dictionary of mythologemas). Numbers of such words will be increased.</p>			</div>
+</div>
+
+    	<div class="container">
+    	    	
+    		<div class="wrapper">
+
+			<div id='search-box'>
+
+				<form id='search-form'>
+
+					<div id="dialektai" style="display: none">
+						<label><span class="dial">dialect</span>: </label>
+						<select name="dia" id="select-dialect">
+							<option id="semba" value="semba" selected="selected">Sambian</option> 
+							<option id="pameddi" value="pameddi">Pomesanian</option>
+						</select>
+					</div>
+
+					<div class="clear-both"></div>
+
+					<div id="sfb"><div class="inputWrapper">
+						<div class="padding-wrapper">
+							<input type='text' id='q' name='s' placeholder="Enter a word" autocomplete="off">
+							
+							<div id="billas">
+								<select name="language" id="select-billa">
+									<option id="engl" value="engl">English</option> 
+									<option id="miks" value="miks">German</option>
+									<option id="leit" value="leit">Lithuanian</option>
+									<option id="latt" value="latt">Latvian</option>
+									<option id="pols" value="pols">Polish</option>
+									<option id="mask" value="mask">Russian</option>
+
+								</select>
+							</div>
+							
+							<button name="s-button" value="" id="q-button">
+								<svg width="26px" height="26px" viewBox="0 0 26 26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	    <!-- Generator: Sketch 56.2 (81672) - https://sketch.com -->
+							    <title>Search icon</title>
+							    <g id="searchicon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+							        <g id="Teach" transform="translate(-1237.000000, -3303.000000)" fill="#FFFFFF" fill-rule="nonzero">
+							            <g id="svg-inline--fa-fa-search-fa-w-16-fa-9x" transform="translate(1237.000000, 3303.000000)">
+							                <path d="M25.379,24.036 L18.941,17.6 C18.8289267,17.487058 18.6761078,17.4239841 18.517,17.425 L18,17.425 C21.777555,13.2968319 21.558138,6.90513742 17.5063822,3.04573748 C13.4546264,-0.813662464 7.05982115,-0.722181998 3.12012156,3.25153918 C-0.819578036,7.22526036 -0.856070709,13.6206158 3.03802475,17.6390376 C6.93212021,21.6574593 13.3254651,21.8219105 17.421,18.009 L17.421,18.518 C17.4223683,18.6766337 17.4850825,18.8285812 17.596,18.942 L24.034,25.38 C24.268254,25.6139627 24.647746,25.6139627 24.882,25.38 L25.376,24.886 C25.489371,24.7738181 25.5534118,24.621114 25.5539784,24.4616229 C25.5545376,24.3021317 25.4915763,24.1489794 25.379,24.036 Z M10.379,19.1650009 C5.52773076,19.1650009 1.595,15.2322692 1.595,10.381 C1.595,5.52973076 5.52773076,1.597 10.379,1.597 C15.2302692,1.597 19.1630021,5.52973076 19.1630021,10.381 C19.1645927,12.710803 18.2399243,14.9456701 16.592692,16.5932775 C14.9454598,18.2408849 12.7108033,19.1660622 10.381,19.1650009 L10.379,19.1650009 Z" id="svg-inline--fa_fa-search_fa-w-16_fa-9x"></path>
+							            </g>
+							        </g>
+							    </g>
+							</svg>
+							</button>
+						</div>
+
+						<div id="suggest-wrap"><div id="suggestions"></div></div>
+						</div>
+						
+					
+					</div>
+				</form>
+		
+			</div> <! search box  ->
+
+			<div id="results"><ul></ul></div>
+
+    		</div>
+    		<div class="push"></div>
+    	</div>
+    	
+    	<div class="footer">
+
+   		<span class="languages">
+    		<a href="pr/">Prūsiskai</a>  
+    		<a href="en/">English</a> 
+    		<a href="de/">Deutsch</a>
+    		<a href="lt/">Lietuviškai</a>    
+    		<a href="lv/">Latviski</a>    		   		
+    		<a href="pl/">Po polsku</a>
+    		<a href="ru/">По-русски</a>
+		</span>
+			
+    		<span class="main-text links"><a href="https://awizi.twanksta.org">Prūsas Tāutas Prēigara</a> | <a href="https://emnes.twanksta.org">Prūsiskai emnes</a> | <a href="https://wins.twanksta.org">Wins en Prūsai</a> | <a href="https://bila.twanksta.org">Bilā</a> | <a href="https://etari.twanksta.org">Prūsas Etāri</a> | <a href="https://romowe.twanksta.org">Romowe Rikoito</a></span>
+    		<span class="main-text"> © Twānkstas Prūsa 
+    		<span class="help-icon"><img src="source/info.png"></span>
+    		</span>
+    	</div>
+
+<div id="loadingDiv" align="center"><img src="source/spinner.gif"></div>
+
+
+<script type='text/javascript' src='source/app_n-min.js'></script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40995534-4', 'twanksta.org');
+  ga('require', 'displayfeatures');
+  ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>

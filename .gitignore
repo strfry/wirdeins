@@ -1,0 +1,16 @@
+# build artifacts
+/dist/
+
+# tooling cache
+/.codemap/
+
+# handoff scratch
+/PLAN_homonyms.md
+
+# dictionary content: generated from twanksta + author-edited on the host,
+# not code. Lives outside this repo (regenerate via cmd/migrate).
+# NOTE: internal/core/testdata/entries/ stays tracked (test fixtures) — the
+# leading slash anchors these to the dictionary/ root only.
+/entries/
+/articles/
+/assets/
