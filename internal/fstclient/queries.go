@@ -19,10 +19,10 @@ import (
 //	verb subj       {word}+V+Subj+{Pers}[+{Num}]
 //	verb opt        {word}+V+Opt+P3
 //	verb imp        {word}+V+Imp+P2+{Num}
-//	participle      {word}+V+Part+{Pres|Pass|Pret}+{Gender}+{Num}+{Case}
+//	participle      {word}+V+Part+{Pres|Past|Pass}+{Gender}+{Num}+{Case}
 //
-// Case uses +Akk (base.gen predates the +Akk->acc rename); the canonical slot
-// says "acc", so the reverse maps below restore +Akk.
+// Case uses +Acc; the canonical slot says "acc", so the reverse maps below
+// restore +Acc.
 //
 // NOTE on adverbs: adjective adverbs (e.g. begalbis -> begalbjai) DO exist in
 // base.gen, but as a separate lexeme keyed on the adverb's own headword
@@ -31,7 +31,7 @@ import (
 
 var (
 	fstNum  = map[string]string{"sg": "Sg", "pl": "Pl"}
-	fstCase = map[string]string{"nom": "Nom", "gen": "Gen", "dat": "Dat", "acc": "Akk"}
+	fstCase = map[string]string{"nom": "Nom", "gen": "Gen", "dat": "Dat", "acc": "Acc"}
 	fstGend = map[string]string{"masc": "Masc", "fem": "Fem", "neut": "Neut"}
 	fstPers = map[string]string{"p1": "P1", "p2": "P2", "p3": "P3"}
 )
@@ -160,7 +160,7 @@ func participleQuery(word string, p []string) []string {
 	case "pass":
 		typ = "Pass"
 	case "past":
-		typ = "Pret"
+		typ = "Past"
 	default:
 		return nil
 	}

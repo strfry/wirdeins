@@ -52,14 +52,14 @@ const (
 	CaseNom = "nom"
 	CaseGen = "gen"
 	CaseDat = "dat"
-	CaseAcc = "acc" // FST still says +Akk; the adapter renames (known bug)
+	CaseAcc = "acc"
 
 	GenderMasc = "masc"
 	GenderFem  = "fem"
 	GenderNeut = "neut"
 
 	TensePres = "pres"
-	TensePast = "past" // the -uns participle type; FST generator calls it +Act
+	TensePast = "past" // the -uns/-usis participle type; FST generator calls it +Past
 	TenseSubj = "subj"
 
 	MoodOpt = "opt"

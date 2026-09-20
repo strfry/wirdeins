@@ -13,29 +13,29 @@ func TestSlotForTags(t *testing.T) {
 		// nouns.lexc analyzer: +N+number+case+gender (gender dropped for nouns)
 		{"+N+Sg+Nom+Masc", "sg.nom"},
 		{"+N+Pl+Nom+Masc", "pl.nom"},
-		{"+N+Sg+Akk+Neut", "sg.acc"},
+		{"+N+Sg+Acc+Neut", "sg.acc"},
 		{"+N+Pl+Dat+Fem", "pl.dat"},
 		// gen/astem.lexc noun generator: bare +number+case
 		{"+Sg+Nom", "sg.nom"},
-		{"+Sg+Akk", "sg.acc"}, // +Akk -> acc rename (known bug)
+		{"+Sg+Acc", "sg.acc"},
 		{"+Pl+Dat", "pl.dat"},
 		// adjectives.lexc analyzer: +Adj+number+case+gender
 		{"+Adj+Sg+Nom+Masc", "masc.sg.nom"},
-		{"+Adj+Pl+Akk+Fem", "fem.pl.acc"},
+		{"+Adj+Pl+Acc+Fem", "fem.pl.acc"},
 		// gen/adj.lexc adjective generator: +Adj+gender+number+case
 		{"+Adj+Masc+Sg+Nom", "masc.sg.nom"},
-		{"+Adj+Neut+Pl+Akk", "neut.pl.acc"},
-		// participle generator tags: +Part+{Act,Pass}+gender+number+case
+		{"+Adj+Neut+Pl+Acc", "neut.pl.acc"},
+		// participle generator tags: +Part+{Past,Pass}+gender+number+case
 		{"+Part+Pass+Masc+Sg+Nom", "part.pass.masc.sg.nom"},
 		{"+Part+Pass+Neut+Pl+Dat", "part.pass.neut.pl.dat"},
-		{"+Part+Act+Masc+Sg+Nom", "part.past.masc.sg.nom"}, // +Act = pret participle
-		{"+Part+Act+Fem+Pl+Akk", "part.past.fem.pl.acc"},
+		{"+Part+Past+Masc+Sg+Nom", "part.past.masc.sg.nom"},
+		{"+Part+Past+Fem+Pl+Acc", "part.past.fem.pl.acc"},
 		// verbs.lexc participle analyzer, order variant 1: +V+Part+Pres+number+case+gender
 		{"+V+Part+Pres+Sg+Nom+Masc", "part.pres.masc.sg.nom"},
-		{"+V+Part+Pass+Pl+Akk+Neut", "part.pass.neut.pl.acc"},
-		// verbs.lexc participle analyzer, order variant 2: +V+Part+Pret+gender+number+case
-		{"+V+Part+Pret+Masc+Sg+Nom", "part.past.masc.sg.nom"},
-		{"+V+Part+Pret+Neut+Sg+Nom", "part.past.neut.sg.nom"},
+		{"+V+Part+Pass+Pl+Acc+Neut", "part.pass.neut.pl.acc"},
+		// verbs.lexc participle analyzer, order variant 2: +V+Part+Past+gender+number+case
+		{"+V+Part+Past+Masc+Sg+Nom", "part.past.masc.sg.nom"},
+		{"+V+Part+Past+Neut+Sg+Nom", "part.past.neut.sg.nom"},
 		// finite verbs: +V+mood(+tense)+person+number
 		{"+V+Ind+Pres+P1+Sg", "pres.p1.sg"},
 		{"+V+Ind+Pres+P2+Pl", "pres.p2.pl"},

@@ -8,18 +8,14 @@ package fstclient
 //	gen/astem.lexc  (noun gen):   +Sg+Nom               (gender sits on the stem)
 //	adjectives.lexc (analyzer):   +Adj+Sg+Nom+Masc
 //	gen/adj.lexc    (adj gen):    +Adj+Masc+Sg+Nom      (gender number case)
-//	gen/adj.lexc    (part gen):   +Part+Pass+Masc+Sg+Nom / +Part+Act+...
+//	gen/adj.lexc    (part gen):   +Part+Pass+Masc+Sg+Nom / +Part+Past+...
 //	verbs.lexc      (finite):     +V+Ind+Pres+P1+Sg / +V+Imp+P2+Pl / +V+Opt+P3 / +V+Subj+P3
-//	verbs.lexc      (participle): +V+Part+Pres+Sg+Nom+Masc AND +V+Part+Pret+Masc+Sg+Nom
+//	verbs.lexc      (participle): +V+Part+Pres+Sg+Nom+Masc AND +V+Part+Past+Masc+Sg+Nom
 //	                            (both orders occur in the same file!)
 //
 // slotForTags therefore parses dimension-blind and composes the canonical
 // core.Slot in core's fixed order. Normalizations applied on the way:
 //
-//	+Akk -> acc    known bug in symbols.lexc, rename pending; the adapter
-//	                 normalizes until the FST is fixed
-//	+Act -> past   the generator calls the -uns/-usis participle "+Act", the
-//	                 analyzer calls it "+Pret"; both are the past.part
 //	P3   -> p3     no number: 3rd person never distinguishes number
 //
 // Dropped as analyzer enrichment (a slot is form identity, not syntax):
@@ -38,13 +34,13 @@ import (
 type tagDims struct {
 	pos      string // N, Adj, V, Pron, ...
 	num      string // Sg, Pl
-	kasus    string // Nom, Gen, Dat, Akk
+	kasus    string // Nom, Gen, Dat, Acc
 	gender   string // Masc, Fem, Neut
 	person   string // P1, P2, P3
 	tense    string // Pres, Pret
 	mood     string // Ind, Imp, Opt, Subj
 	deg      string // Cmp, Sup
-	partType string // Act, Pass (participle type; Pres/Pret ride d.tense)
+	partType string // Pass, Past (participle type; Pres rides d.tense)
 	isPart   bool   // +Part seen
 	isInf    bool   // +Inf seen
 }
@@ -62,7 +58,7 @@ func slotForTags(tags string) (core.Slot, bool) {
 		case "": // leading "+"
 		case "Sg", "Pl":
 			d.num = t
-		case "Nom", "Gen", "Dat", "Akk":
+		case "Nom", "Gen", "Dat", "Acc":
 			d.kasus = t
 		case "Masc", "Fem", "Neut":
 			d.gender = t
@@ -74,7 +70,7 @@ func slotForTags(tags string) (core.Slot, bool) {
 			d.mood = t
 		case "Cmp", "Sup":
 			d.deg = t
-		case "Pass", "Act":
+		case "Pass", "Past":
 			d.partType = t
 		case "Inf":
 			d.isInf = true
@@ -177,12 +173,10 @@ func (d tagDims) participleSlot() (core.Slot, bool) {
 	switch {
 	case d.partType == "Pass":
 		typ = core.PartPass
-	case d.partType == "Act":
-		typ = core.PartPast // +Act IS the -uns/-usis (pret) participle
+	case d.partType == "Past":
+		typ = core.PartPast
 	case d.tense == "Pres":
 		typ = core.PartPres
-	case d.tense == "Pret":
-		typ = core.PartPast
 	default:
 		return "", false
 	}
@@ -219,10 +213,10 @@ func (d tagDims) declinedSlot(prefix string) (core.Slot, bool) {
 	return core.Slot(s), true
 }
 
-// symbol -> canonical component; +Akk renamed to acc (known bug in symbols.lexc).
+// symbol -> canonical component.
 var (
 	kasus = map[string]string{
-		"Nom": core.CaseNom, "Gen": core.CaseGen, "Dat": core.CaseDat, "Akk": core.CaseAcc,
+		"Nom": core.CaseNom, "Gen": core.CaseGen, "Dat": core.CaseDat, "Acc": core.CaseAcc,
 	}
 	gender = map[string]string{
 		"Masc": core.GenderMasc, "Fem": core.GenderFem, "Neut": core.GenderNeut,
