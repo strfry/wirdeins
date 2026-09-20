@@ -11,31 +11,31 @@ func TestSlotForTags(t *testing.T) {
 		want string // canonical slot, "" for ignorable/unmappable
 	}{
 		// nouns.lexc analyzer: +N+number+case+gender (gender dropped for nouns)
-		{"+N+Sg+Nom+Masc", "nom.sg"},
-		{"+N+Pl+Nom+Masc", "nom.pl"},
-		{"+N+Sg+Akk+Neut", "acc.sg"},
-		{"+N+Pl+Dat+Fem", "dat.pl"},
+		{"+N+Sg+Nom+Masc", "sg.nom"},
+		{"+N+Pl+Nom+Masc", "pl.nom"},
+		{"+N+Sg+Akk+Neut", "sg.acc"},
+		{"+N+Pl+Dat+Fem", "pl.dat"},
 		// gen/astem.lexc noun generator: bare +number+case
-		{"+Sg+Nom", "nom.sg"},
-		{"+Sg+Akk", "acc.sg"}, // +Akk -> acc rename (known bug)
-		{"+Pl+Dat", "dat.pl"},
+		{"+Sg+Nom", "sg.nom"},
+		{"+Sg+Akk", "sg.acc"}, // +Akk -> acc rename (known bug)
+		{"+Pl+Dat", "pl.dat"},
 		// adjectives.lexc analyzer: +Adj+number+case+gender
-		{"+Adj+Sg+Nom+Masc", "nom.sg.masc"},
-		{"+Adj+Pl+Akk+Fem", "acc.pl.fem"},
+		{"+Adj+Sg+Nom+Masc", "masc.sg.nom"},
+		{"+Adj+Pl+Akk+Fem", "fem.pl.acc"},
 		// gen/adj.lexc adjective generator: +Adj+gender+number+case
-		{"+Adj+Masc+Sg+Nom", "nom.sg.masc"},
-		{"+Adj+Neut+Pl+Akk", "acc.pl.neut"},
+		{"+Adj+Masc+Sg+Nom", "masc.sg.nom"},
+		{"+Adj+Neut+Pl+Akk", "neut.pl.acc"},
 		// participle generator tags: +Part+{Act,Pass}+gender+number+case
-		{"+Part+Pass+Masc+Sg+Nom", "part.pass.nom.sg.masc"},
-		{"+Part+Pass+Neut+Pl+Dat", "part.pass.dat.pl.neut"},
-		{"+Part+Act+Masc+Sg+Nom", "part.past.nom.sg.masc"}, // +Act = pret participle
-		{"+Part+Act+Fem+Pl+Akk", "part.past.acc.pl.fem"},
+		{"+Part+Pass+Masc+Sg+Nom", "part.pass.masc.sg.nom"},
+		{"+Part+Pass+Neut+Pl+Dat", "part.pass.neut.pl.dat"},
+		{"+Part+Act+Masc+Sg+Nom", "part.past.masc.sg.nom"}, // +Act = pret participle
+		{"+Part+Act+Fem+Pl+Akk", "part.past.fem.pl.acc"},
 		// verbs.lexc participle analyzer, order variant 1: +V+Part+Pres+number+case+gender
-		{"+V+Part+Pres+Sg+Nom+Masc", "part.pres.nom.sg.masc"},
-		{"+V+Part+Pass+Pl+Akk+Neut", "part.pass.acc.pl.neut"},
+		{"+V+Part+Pres+Sg+Nom+Masc", "part.pres.masc.sg.nom"},
+		{"+V+Part+Pass+Pl+Akk+Neut", "part.pass.neut.pl.acc"},
 		// verbs.lexc participle analyzer, order variant 2: +V+Part+Pret+gender+number+case
-		{"+V+Part+Pret+Masc+Sg+Nom", "part.past.nom.sg.masc"},
-		{"+V+Part+Pret+Neut+Sg+Nom", "part.past.nom.sg.neut"},
+		{"+V+Part+Pret+Masc+Sg+Nom", "part.past.masc.sg.nom"},
+		{"+V+Part+Pret+Neut+Sg+Nom", "part.past.neut.sg.nom"},
 		// finite verbs: +V+mood(+tense)+person+number
 		{"+V+Ind+Pres+P1+Sg", "pres.p1.sg"},
 		{"+V+Ind+Pres+P2+Pl", "pres.p2.pl"},

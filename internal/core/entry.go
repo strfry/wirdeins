@@ -36,8 +36,8 @@ type Class string
 
 const ClassIrregular Class = "irregular"
 
-// Slot is the canonical identity of a single inflected form, e.g. "nom.sg",
-// "gen.pl", "nom.sg.masc", "past.p1.pl", "part.pres.nom.sg.masc". This
+// Slot is the canonical identity of a single inflected form, e.g. "sg.nom",
+// "pl.gen", "masc.sg.nom", "past.p1.pl", "part.pres.masc.sg.nom". This
 // vocabulary is the shared key space between FST output and per-entry Overrides;
 // the full inventory and naming rules live in slots.go (the single source of
 // truth), and FST tags round-trip onto it via internal/fstclient/tags.go.

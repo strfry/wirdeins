@@ -8,12 +8,12 @@ package core
 //
 // Naming rules:
 //
-//	noun       {case}.{number}                     — gender is an entry-level
+//	noun       {number}.{case}                     — gender is an entry-level
 //	                                                 fact (Entry.Gender), not a
 //	                                                 slot dimension
-//	adj        {case}.{number}.{gender}            — positive degree, bare
-//	           cmp.{case}.{number}.{gender}        — comparative declines fully
-//	           sup.{case}.{number}.{gender}        — so does the superlative
+//	adj        {gender}.{number}.{case}            — positive degree, bare
+//	           cmp.{gender}.{number}.{case}        — comparative declines fully
+//	           sup.{gender}.{number}.{case}        — so does the superlative
 //	           adv / adv.cmp / adv.sup             — adverb degrees
 //	verb       {pres|past|subj}.{p1.sg|p2.sg|p3|p1.pl|p2.pl}
 //	                                                 — flat: Pres/Pret are
@@ -24,7 +24,7 @@ package core
 //	                                                 number (FST tags agree)
 //	           opt                                 — a single form
 //	           imp.sg / imp.pl                     — 2nd person only
-//	participle part.{pres|past|pass}.{case}.{number}.{gender}
+//	participle part.{pres|past|pass}.{gender}.{number}.{case}
 //	                                                 — one shared "part." prefix
 //	                                                 keeps participles out of the
 //	                                                 finite prefix space (past.p1
@@ -40,8 +40,9 @@ package core
 //	             for the dictionary they live in Desc (later: an explicit TOML
 //	             field when the cg3 resolver needs them)
 //
-// Canonical component order inside a slot is fixed; the FST adapter normalizes
-// the project's several tag orderings onto it (see internal/fstclient/tags.go).
+// Canonical component order inside a slot is fixed (gender-first for nominal
+// declension, matching the rebuilt base.gen); the FST adapter normalizes the
+// project's several tag orderings onto it (see internal/fstclient/tags.go).
 
 // Slot components. fst maps the FST multichar symbols onto exactly these.
 const (
@@ -88,14 +89,14 @@ var (
 	}
 )
 
-// declined returns case.number[.gender] in canonical order.
+// declined returns [gender.]number.case in canonical order.
 func declined(gender string) []Slot {
 	var out []Slot
-	for _, c := range slotCases {
-		for _, n := range slotNumbers {
-			s := Slot(c + "." + n)
+	for _, n := range slotNumbers {
+		for _, c := range slotCases {
+			s := Slot(n + "." + c)
 			if gender != "" {
-				s += "." + Slot(gender)
+				s = Slot(gender) + "." + s
 			}
 			out = append(out, s)
 		}
@@ -103,11 +104,11 @@ func declined(gender string) []Slot {
 	return out
 }
 
-// NounSlots: 4 cases x 2 numbers. Gender is Entry.Gender, not a slot.
+// NounSlots: 2 numbers x 4 cases. Gender is Entry.Gender, not a slot.
 var NounSlots = declined("")
 
 // AdjSlots: the full adjective paradigm as twanksta stores it — positive,
-// comparative and superlative each decline in 3 genders x 4 cases x 2 numbers,
+// comparative and superlative each decline in 3 genders x 2 numbers x 4 cases,
 // plus the three adverb degrees. (cmp/sup are NOT single forms.)
 var AdjSlots = func() []Slot {
 	var out []Slot
@@ -148,9 +149,9 @@ var ParticipleSlots = func() []Slot {
 	var out []Slot
 	for _, t := range []string{PartPres, PartPast, PartPass} {
 		for _, g := range slotGenders {
-			for _, c := range slotCases {
-				for _, n := range slotNumbers {
-					out = append(out, Slot("part."+t+"."+c+"."+n+"."+g))
+			for _, n := range slotNumbers {
+				for _, c := range slotCases {
+					out = append(out, Slot("part."+t+"."+g+"."+n+"."+c))
 				}
 			}
 		}

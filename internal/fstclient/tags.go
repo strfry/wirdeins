@@ -122,7 +122,7 @@ func (d tagDims) slot() (core.Slot, bool) {
 		if d.gender != "" && d.pos != "N" {
 			return d.adjSlot()
 		}
-		return core.Slot(kasus[d.kasus] + "." + strings.ToLower(d.num)), true
+		return core.Slot(strings.ToLower(d.num) + "." + kasus[d.kasus]), true
 	}
 	return "", false
 }
@@ -207,12 +207,12 @@ func (d tagDims) adjSlot() (core.Slot, bool) {
 	return core.Slot(deg) + slot, true
 }
 
-// declinedSlot composes {prefix.}{case}.{number}.{gender}.
+// declinedSlot composes {prefix.}{gender}.{number}.{case}.
 func (d tagDims) declinedSlot(prefix string) (core.Slot, bool) {
 	if d.kasus == "" || d.num == "" || d.gender == "" {
 		return "", false
 	}
-	s := kasus[d.kasus] + "." + strings.ToLower(d.num) + "." + gender[d.gender]
+	s := gender[d.gender] + "." + strings.ToLower(d.num) + "." + kasus[d.kasus]
 	if prefix != "" {
 		s = prefix + "." + s
 	}

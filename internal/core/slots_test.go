@@ -28,10 +28,10 @@ func TestSlotInventories(t *testing.T) {
 		return false
 	}
 	for _, s := range []Slot{
-		"nom.sg", "acc.pl", // nouns
-		"nom.sg.masc", "cmp.nom.sg.masc", "sup.acc.pl.neut", "adv", "adv.cmp", "adv.sup", // adj
+		"sg.nom", "pl.acc", // nouns
+		"masc.sg.nom", "cmp.masc.sg.nom", "sup.neut.pl.acc", "adv", "adv.cmp", "adv.sup", // adj
 		"pres.p1.sg", "pres.p3", "past.p2.pl", "subj.p3", "opt", "imp.sg", "imp.pl", // verbs
-		"part.pres.nom.sg.masc", "part.past.nom.sg.neut", "part.pass.dat.pl.fem", // participles
+		"part.pres.masc.sg.nom", "part.past.neut.sg.nom", "part.pass.fem.pl.dat", // participles
 	} {
 		if !member(SlotsFor(POSNoun), s) && !member(SlotsFor(POSAdj), s) && !member(SlotsFor(POSVerb), s) {
 			t.Errorf("slot %q missing from every inventory", s)
@@ -39,7 +39,7 @@ func TestSlotInventories(t *testing.T) {
 	}
 
 	// The p3 slots must carry no number; degrees never collide with participles.
-	for _, bad := range []Slot{"pres.p3.sg", "cmp.part.nom.sg.masc", "nom.sg.masc.masc"} {
+	for _, bad := range []Slot{"pres.p3.sg", "cmp.part.masc.sg.nom", "masc.sg.nom.masc"} {
 		if member(SlotsFor(POSVerb), bad) || member(SlotsFor(POSAdj), bad) {
 			t.Errorf("slot %q unexpectedly in inventory", bad)
 		}

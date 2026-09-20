@@ -6,24 +6,20 @@ import (
 	"github.com/strfry/prussian-dictionary/internal/core"
 )
 
-// Query construction: canonical core.Slot -> the input string(s) base.gen (the
-// twanksta full-form LUT) expects. base.gen matches tag strings LITERALLY, in
-// ANALYZER order, which differs per POS — verified empirically against
+// Query construction: canonical core.Slot -> the base.gen input string. base.gen
+// (the twanksta full-form LUT) matches tag strings LITERALLY. It was rebuilt with
+// ONE consistent component order per POS (gender-first for nominal declension),
+// so each slot maps to exactly one query — verified empirically against
 // build/base.gen.hfstol:
 //
-//	noun            {word}+N+{Num}+{Case}+{Gender}
-//	adj (positive)  {word}+Adj+{Num}+{Case}+{Gender}
-//	adj (degree)    {word}+Adj+{Cmp|Sup}+{Num}+{Case}+{Gender}
+//	noun            {word}+N+{Gender}+{Num}+{Case}
+//	adj (positive)  {word}+Adj+{Gender}+{Num}+{Case}
+//	adj (degree)    {word}+Adj+{Cmp|Sup}+{Gender}+{Num}+{Case}
 //	verb finite     {word}+V+Ind+{Pres|Pret}+{Pers}[+{Num}]   (P3 has no number)
 //	verb subj       {word}+V+Subj+{Pers}[+{Num}]
 //	verb opt        {word}+V+Opt+P3
 //	verb imp        {word}+V+Imp+P2+{Num}
-//	participle      {word}+V+Part+{Pres|Pass|Pret}+ ...case/number/gender...
-//
-// PARTICIPLE TAG ORDER IS INCONSISTENT inside verbs.lexc: the nominatives were
-// emitted as +Gender+Num+Case, the oblique cases as +Num+Case+Gender (same
-// lemma, both orders present). Rather than track which slot uses which, we emit
-// BOTH orders per participle slot and let the lookup answer whichever it has.
+//	participle      {word}+V+Part+{Pres|Pass|Pret}+{Gender}+{Num}+{Case}
 //
 // Case uses +Akk (base.gen predates the +Akk->acc rename); the canonical slot
 // says "acc", so the reverse maps below restore +Akk.
@@ -40,8 +36,8 @@ var (
 	fstPers = map[string]string{"p1": "P1", "p2": "P2", "p3": "P3"}
 )
 
-// slotQueries returns, for every slot the entry's POS may carry, the candidate
-// base.gen input string(s) that generate it (usually one; two for participles).
+// slotQueries returns, for every slot the entry's POS may carry, the base.gen
+// input string that generates it (exactly one per slot).
 func slotQueries(word string, e *core.Entry) map[core.Slot][]string {
 	out := map[core.Slot][]string{}
 	for _, s := range core.SlotsFor(e.POS) {
@@ -65,16 +61,16 @@ func queryForSlot(word string, pos core.POS, gender string, slot core.Slot) []st
 	return nil
 }
 
-// nounQuery: p = {case, number}; gender is the entry-level fact.
+// nounQuery: p = {number, case}; gender is the entry-level fact.
 func nounQuery(word, gender string, p []string) []string {
 	if len(p) != 2 {
 		return nil
 	}
-	c, n, g := fstCase[p[0]], fstNum[p[1]], fstGend[gender]
+	n, c, g := fstNum[p[0]], fstCase[p[1]], fstGend[gender]
 	if c == "" || n == "" || g == "" {
 		return nil
 	}
-	return []string{word + "+N+" + n + "+" + c + "+" + g}
+	return []string{word + "+N+" + g + "+" + n + "+" + c}
 }
 
 // adjQuery handles positive/comparative/superlative declension. (Adverbs are
@@ -95,11 +91,11 @@ func adjQuery(word string, p []string) []string {
 	if len(p) != 3 {
 		return nil
 	}
-	c, n, g := fstCase[p[0]], fstNum[p[1]], fstGend[p[2]]
+	g, n, c := fstGend[p[0]], fstNum[p[1]], fstCase[p[2]]
 	if c == "" || n == "" || g == "" {
 		return nil
 	}
-	return []string{word + "+Adj" + deg + "+" + n + "+" + c + "+" + g}
+	return []string{word + "+Adj" + deg + "+" + g + "+" + n + "+" + c}
 }
 
 // verbQuery handles finite forms and the three participle declensions.
@@ -148,13 +144,12 @@ func verbQuery(word string, p []string) []string {
 	return []string{q}
 }
 
-// participleQuery: p = {part, type, case, number, gender}. Emits both tag orders
-// (see the package note on verbs.lexc's inconsistency).
+// participleQuery: p = {part, type, gender, number, case}.
 func participleQuery(word string, p []string) []string {
 	if len(p) != 5 {
 		return nil
 	}
-	c, n, g := fstCase[p[2]], fstNum[p[3]], fstGend[p[4]]
+	g, n, c := fstGend[p[2]], fstNum[p[3]], fstCase[p[4]]
 	if c == "" || n == "" || g == "" {
 		return nil
 	}
@@ -169,9 +164,5 @@ func participleQuery(word string, p []string) []string {
 	default:
 		return nil
 	}
-	base := word + "+V+Part+" + typ + "+"
-	return []string{
-		base + n + "+" + c + "+" + g, // Num+Case+Gender (obliques)
-		base + g + "+" + n + "+" + c, // Gender+Num+Case (nominatives)
-	}
+	return []string{word + "+V+Part+" + typ + "+" + g + "+" + n + "+" + c}
 }

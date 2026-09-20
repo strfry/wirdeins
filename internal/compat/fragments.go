@@ -77,10 +77,10 @@ var nounRowOrder = []struct {
 	Label  string
 	Sg, Pl core.Slot
 }{
-	{"Nominative", "nom.sg", "nom.pl"},
-	{"Genitive", "gen.sg", "gen.pl"},
-	{"Dative", "dat.sg", "dat.pl"},
-	{"Accusative", "acc.sg", "acc.pl"},
+	{"Nominative", "sg.nom", "pl.nom"},
+	{"Genitive", "sg.gen", "pl.gen"},
+	{"Dative", "sg.dat", "pl.dat"},
+	{"Accusative", "sg.acc", "pl.acc"},
 }
 
 func nounTableVMFrom(gender string, p core.Paradigm) nounTableVM {
@@ -112,7 +112,7 @@ const substDefine = `{{define "subst"}}<table id="subst"{{if .Width}} width="{{.
 // spoilerTrioVM is a collapsed headline plus the three gender tables inside a
 // spoiler-body2 — shared by verb participles and adjective degrees.
 type spoilerTrioVM struct {
-	Title     string // headline, always the nom.sg.masc form
+	Title     string // headline, always the masc.sg.nom form
 	Closed    bool   // Present participle starts open, everything else closed
 	Masc, Fem genderTableVM
 	Neut      genderTableVM
@@ -145,10 +145,10 @@ func genderTable(width, gender string, p core.Paradigm, slot func(kasus, num str
 	return vm
 }
 
-// slotMapper is the slot mapper for {prefix}{case}.{number}.{gender} paradigms
+// slotMapper is the slot mapper for {prefix}{gender}.{number}.{case} paradigms
 // (adjectives and participles).
 func slotMapper(prefix, gender string) func(kasus, num string) core.Slot {
 	return func(k, n string) core.Slot {
-		return core.Slot(prefix + k + "." + n + "." + gender)
+		return core.Slot(prefix + gender + "." + n + "." + k)
 	}
 }

@@ -65,7 +65,7 @@ var adjTableTmpl = template.Must(template.Must(template.Must(
 
 type adjTableVM struct {
 	Masc, Fem, Neut genderTableVM // positive degree
-	Positive        string        // degree-table headline (nom.sg.masc)
+	Positive        string        // degree-table headline (masc.sg.nom)
 	Cmp, Sup        spoilerTrioVM
 	Adv             string
 	AdvCmp          string
@@ -74,9 +74,9 @@ type adjTableVM struct {
 
 func adjTableVMFrom(p core.Paradigm) adjTableVM {
 	vm := adjTableVM{
-		Positive: p["nom.sg.masc"],
-		Cmp:      spoilerTrioVM{Title: p["cmp.nom.sg.masc"]}, // starts open
-		Sup:      spoilerTrioVM{Title: p["sup.nom.sg.masc"]}, // also open (unlike verb participles)
+		Positive: p["masc.sg.nom"],
+		Cmp:      spoilerTrioVM{Title: p["cmp.masc.sg.nom"]}, // starts open
+		Sup:      spoilerTrioVM{Title: p["sup.masc.sg.nom"]}, // also open (unlike verb participles)
 		Adv:      p["adv"],
 		AdvCmp:   p["adv.cmp"],
 		AdvSup:   p["adv.sup"],

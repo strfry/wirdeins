@@ -18,13 +18,13 @@ var periphrasticRows = []struct {
 	PartMasc, PartFem core.Slot // non-empty -> "masc / fem" alternation
 	PartNeut          core.Slot // non-empty -> bare neuter form
 }{
-	{"as", "asma", "wīrst", "part.past.nom.sg.masc", "part.past.nom.sg.fem", ""},
-	{"tū", "assei", "wīrst", "part.past.nom.sg.masc", "part.past.nom.sg.fem", ""},
-	{"tāns/tenā", "ast", "wīrst", "part.past.nom.sg.masc", "part.past.nom.sg.fem", ""},
-	{"tennan", "ast", "wīrst", "", "", "part.past.nom.sg.neut"},
-	{"mes", "asmai", "wīrstmai", "part.past.nom.pl.masc", "part.past.nom.pl.fem", ""},
-	{"jūs", "astei", "wīrstei", "part.past.nom.pl.masc", "part.past.nom.pl.fem", ""},
-	{"tenēi/tennas", "ast", "wīrst", "part.past.nom.pl.masc", "part.past.nom.pl.fem", ""},
+	{"as", "asma", "wīrst", "part.past.masc.sg.nom", "part.past.fem.sg.nom", ""},
+	{"tū", "assei", "wīrst", "part.past.masc.sg.nom", "part.past.fem.sg.nom", ""},
+	{"tāns/tenā", "ast", "wīrst", "part.past.masc.sg.nom", "part.past.fem.sg.nom", ""},
+	{"tennan", "ast", "wīrst", "", "", "part.past.neut.sg.nom"},
+	{"mes", "asmai", "wīrstmai", "part.past.masc.pl.nom", "part.past.fem.pl.nom", ""},
+	{"jūs", "astei", "wīrstei", "part.past.masc.pl.nom", "part.past.fem.pl.nom", ""},
+	{"tenēi/tennas", "ast", "wīrst", "part.past.masc.pl.nom", "part.past.fem.pl.nom", ""},
 }
 
 // participleFor composes the agreeing participle part of one periphrastic row.
@@ -260,7 +260,7 @@ func verbTableVMFrom(p core.Paradigm) verbTableVM {
 	} {
 		prefix := "part." + part.Prefix + "."
 		spoiler := spoilerTrioVM{
-			Title:  p[core.Slot(prefix+"nom.sg.masc")],
+			Title:  p[core.Slot(prefix+"masc.sg.nom")],
 			Closed: part.Closed,
 		}
 		spoiler.Masc = genderTable("98%", "masc", p, slotMapper(prefix, "masc"))
