@@ -17,13 +17,25 @@ import (
 func main() {
 	addr := flag.String("addr", ":8080", "listen address")
 	entriesDir := flag.String("entries", "entries", "editable TOML source dir")
+	lexonomyDB := flag.String("lexonomy", "", "read entries from a Lexonomy dict SQLite instead of -entries (live-reloaded on change)")
 	staticDir := flag.String("static", "", "mirrored twanksta frontend dir (optional)")
 	articlesDir := flag.String("articles", "articles", "per-lemma article markdown dir (optional)")
 	assetsDir := flag.String("assets", "assets", "static asset dir served at /assets/ (optional)")
 	fstPath := flag.String("fst", "../fst/build/base.gen.hfstol", "path to base.gen.hfstol (queried via hfst-optimized-lookup)")
 	flag.Parse()
 
-	store, err := core.Load(*entriesDir)
+	// The store comes from one of two interchangeable backends: the TOML source
+	// tree, or a Lexonomy dictionary SQLite (the editor's store). Everything
+	// downstream sees the same *core.Store either way.
+	var (
+		store *core.Store
+		err   error
+	)
+	if *lexonomyDB != "" {
+		store, err = core.LoadLexonomy(*lexonomyDB)
+	} else {
+		store, err = core.Load(*entriesDir)
+	}
 	if err != nil {
 		log.Fatalf("load entries: %v", err)
 	}
@@ -33,7 +45,12 @@ func main() {
 		SetArticlesDir(*articlesDir).
 		SetAssetsDir(*assetsDir)
 
-	if err := srv.Watch(*entriesDir); err != nil {
+	if *lexonomyDB != "" {
+		err = srv.WatchLexonomy(*lexonomyDB)
+	} else {
+		err = srv.Watch(*entriesDir)
+	}
+	if err != nil {
 		log.Fatalf("watch entries: %v", err)
 	}
 

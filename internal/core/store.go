@@ -42,14 +42,9 @@ func Load(dir string) (*Store, error) {
 		if _, err := toml.DecodeFile(path, &lemma); err != nil {
 			return fmt.Errorf("%s: %w", path, err)
 		}
-		for i := range lemma.Senses {
-			e := &lemma.Senses[i]
-			if err := validateOverrides(lemma.Word, e); err != nil {
-				return fmt.Errorf("%s: %w", path, err)
-			}
-			s.byWord[lemma.Word] = append(s.byWord[lemma.Word], e)
+		if err := s.index(lemma); err != nil {
+			return fmt.Errorf("%s: %w", path, err)
 		}
-		s.lemmas = append(s.lemmas, lemma)
 		return nil
 	})
 	if err != nil {
@@ -57,6 +52,23 @@ func Load(dir string) (*Store, error) {
 	}
 	sort.Slice(s.lemmas, func(i, j int) bool { return s.lemmas[i].Word < s.lemmas[j].Word })
 	return s, nil
+}
+
+// index adds one decoded Lemma to the store: it validates every sense's
+// overrides against its POS inventory (fail loud on a stale/typo'd slot) and
+// records the sense pointers under the headword. It is the storage-agnostic
+// heart shared by every loader (TOML tree, Lexonomy SQLite, …) — a new backend
+// only has to produce Lemmas and hand them here.
+func (s *Store) index(lemma Lemma) error {
+	for i := range lemma.Senses {
+		e := &lemma.Senses[i]
+		if err := validateOverrides(lemma.Word, e); err != nil {
+			return err
+		}
+		s.byWord[lemma.Word] = append(s.byWord[lemma.Word], e)
+	}
+	s.lemmas = append(s.lemmas, lemma)
+	return nil
 }
 
 // validateOverrides rejects any override keyed by a slot the entry's POS does
@@ -78,6 +90,9 @@ func validateOverrides(word string, e *Entry) error {
 
 // Lookup returns every homonym sense for an exact headword, in source order.
 func (s *Store) Lookup(word string) []*Entry { return s.byWord[word] }
+
+// Len is the number of loaded lemmas (headwords). Backend-agnostic.
+func (s *Store) Len() int { return len(s.lemmas) }
 
 // fold normalizes for diacritic-insensitive matching: the site lets users type
 // a/e/i/o/u for ā/ē/ī/ō/ū.
