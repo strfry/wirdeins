@@ -1,6 +1,10 @@
 # build artifacts
 /dist/
 
+# python bytecode (web/)
+__pycache__/
+*.py[oc]
+
 # tooling cache
 /.codemap/
 

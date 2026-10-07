@@ -1,0 +1,119 @@
+/* Uploaded alongside custom_editor.js (config['editing']['css']); Lexonomy
+   injects it as a <style id="customEditorStyle"> while the editor is mounted. */
+
+.pfx-editor { padding: 8px 4px; font-size: 14px; }
+
+.pfx-core {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+   gap: 8px 16px;
+   margin-bottom: 16px;
+}
+.pfx-field { display: flex; flex-direction: column; }
+.pfx-lbl { font-size: 11px; text-transform: uppercase; color: #777; letter-spacing: .04em; }
+.pfx-inp { border: 1px solid #cfcfcf; border-radius: 4px; padding: 4px 6px; }
+.pfx-inp:focus { outline: none; border-color: #3f7cac; }
+
+.pfx-h { margin: 4px 0 8px; font-weight: 600; }
+
+.pfx-table { border-collapse: collapse; width: 100%; max-width: 640px; }
+.pfx-table th {
+   text-align: left; font-size: 11px; text-transform: uppercase;
+   color: #777; border-bottom: 1px solid #ddd; padding: 4px 8px;
+}
+.pfx-table td { padding: 4px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+.pfx-slot { color: #555; white-space: nowrap; }
+
+/* ── Inflection grid (wirdeins.twanksta.org style) ─────────────────────── */
+.pfx-tableblock { margin-bottom: 18px; }
+.pfx-blocks { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+.pfx-block { display: inline-block; }
+.pfx-blocktitle {
+   font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+   color: #667; margin-bottom: 4px;
+}
+
+.pfx-grid { border-collapse: collapse; font-size: 13px; }
+.pfx-grid th, .pfx-grid td {
+   border: 1px solid #e2e4e6; padding: 4px 7px; vertical-align: top;
+   text-align: left;
+}
+.pfx-grid .pfx-corner, .pfx-grid .pfx-colhead {
+   background: #f2f4f6; color: #556; font-weight: 600;
+   font-size: 11px; text-transform: uppercase; letter-spacing: .03em;
+}
+.pfx-grid .pfx-rowhead {
+   background: #f7f8f9; color: #556; font-weight: 600; white-space: nowrap;
+}
+.pfx-cell { min-width: 108px; }
+.pfx-cellform { font-weight: 600; }
+.pfx-cellform .pfx-badge { margin-left: 6px; }
+.pfx-cell.pfx-over .pfx-cellform { color: #b4690e; }
+.pfx-cell.pfx-gap .pfx-cellform { color: #bbb; font-weight: 400; font-style: italic; }
+.pfx-cell .pfx-ov { width: 100%; margin-top: 3px; box-sizing: border-box; }
+
+/* click-to-edit: the form itself is the editor trigger */
+.pfx-cellval { cursor: pointer; border-bottom: 1px dashed transparent; }
+.pfx-cellval:hover, .pfx-cellval:focus { outline: none; border-bottom-color: #3f7cac; }
+
+/* ── Stufe-1 stems ─────────────────────────────────────────────────────── */
+.pfx-stemhead {
+   font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+   color: #667; margin: 2px 0 6px;
+}
+.pfx-stems { margin-bottom: 16px; }
+.pfx-stemrow { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+.pfx-stemrole { min-width: 210px; color: #556; font-size: 12px; }
+.pfx-stembox { display: inline-flex; align-items: center; gap: 6px; }
+.pfx-stemval { font-weight: 600; min-width: 60px; }
+.pfx-steminp { width: 150px; }
+
+.pfx-form { font-weight: 600; }
+.pfx-rule { color: #333; }
+.pfx-over { color: #b4690e; }
+
+.pfx-gap { color: #bbb; font-weight: 400; font-style: italic; }
+
+.pfx-badge {
+   margin-left: 8px; font-size: 10px; font-weight: 500;
+   padding: 1px 6px; border-radius: 8px; vertical-align: middle;
+}
+.pfx-b-rule { background: #eef2f5; color: #557; }
+.pfx-b-over { background: #fbe8cf; color: #b4690e; }
+.pfx-b-gap { background: #f5f5f5; color: #999; }
+
+.pfx-ov { width: 130px; border: 1px solid #ddd; border-radius: 4px; padding: 3px 6px; }
+.pfx-ov::placeholder { color: #bbb; font-style: italic; }
+
+.pfx-muted { color: #999; font-size: 12px; margin-top: 8px; }
+
+/* translations (multi-valued per language) */
+.pfx-trow { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+.pfx-tlang {
+   min-width: 28px; text-align: right; color: #667; font-size: 12px;
+   text-transform: uppercase; padding-top: 6px;
+}
+.pfx-tvals { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pfx-tval { display: inline-flex; align-items: center; }
+.pfx-tval .pfx-inp { width: 150px; }
+.pfx-x {
+   border: none; background: none; color: #b44; cursor: pointer;
+   font-size: 16px; line-height: 1; padding: 0 4px;
+}
+.pfx-add {
+   border: 1px dashed #bbb; background: #fafafa; color: #667; cursor: pointer;
+   border-radius: 4px; font-size: 12px; padding: 3px 8px;
+}
+.pfx-add:hover { border-color: #3f7cac; color: #3f7cac; }
+
+/* attested examples (read-only) */
+.pfx-exlist { display: flex; flex-direction: column; gap: 3px; }
+.pfx-ex { display: flex; gap: 10px; align-items: baseline; font-size: 13px; }
+.pfx-exform { font-weight: 600; min-width: 120px; }
+.pfx-exgram { color: #667; }
+.pfx-exsrc { color: #aaa; font-size: 12px; margin-left: auto; }
+
+.pfx-note {
+   background: #fff8e6; border: 1px solid #f0e0b0; border-radius: 6px;
+   padding: 8px 12px; color: #7a6a3a; font-size: 13px; margin-top: 12px;
+}
