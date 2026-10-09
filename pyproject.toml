@@ -1,0 +1,25 @@
+[project]
+name = "prussian-dictionary"
+version = "0.2.0"
+description = "Prussian dictionary web: Lexonomy editor service + wirdeins compatibility server"
+requires-python = "==3.12.*"
+dependencies = [
+    "bottle>=0.13",
+    "jinja2>=3.1",
+    "pyhfst>=1.4.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    # builds missing atom FSTs in the test fixture (gen/atom_fst.py)
+    "hfst>=3.16.0.1",
+]
+
+# Not a distributable package: web/ is run in place (`uv run python web/flexsrv.py`),
+# the fst engine is located at runtime by web/engine.py.
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["web/tests"]

@@ -1,0 +1,9 @@
+{#- /search/ → injected into #results. `numb` carries the paradigm number; the
+    frontend echoes it (and `desc`) back to /more/ to pick the homonym. -#}
+<ul>
+{% for r in results %}	<li><span class='word'>{{ r.word }}</span> <span class='numb'>{{ r.numb }}</span> <span class="gend">{{ r.gender }}</span>  <span class='desc'>{{ r.desc }}</span>
+		<span class="translat">{% for s in r.senses %}<span class='translation-child'><span class='translation-number'>{{ loop.index }}</span> {{ s }}</span>{% endfor %}</span>
+{% if r.has_forms %}		<span class="more"><small>&#9658;</small> Show form</span>
+		<div class="spoiler-body" id="parad"></div>
+{% endif %}	</li>
+{% endfor %}</ul>

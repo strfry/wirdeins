@@ -45,14 +45,13 @@
  *
  * ======================== FLEXION SERVER =========================
  * The inflection table comes from fetchForms() below, which POSTs to the
- * scratch generator service (`lexonomy/flexsrv.py`, `make flexsrv`):
+ * generator service (`web/flexsrv.py` in the dictionary repo):
  *
- *   uv run python lexonomy/flexsrv.py            # 127.0.0.1:8080
- *   make flexsrv
+ *   uv run python web/flexsrv.py                 # 127.0.0.1:8080
  *
  * The service wraps the real, data-free generator (`gen/generator.py`, atom
  * FSTs in build/) — the inflection cells are generated, not a mock rule. The
- * endpoint contract (see lexonomy/flexsrv.py and its README):
+ * endpoint contract (see web/editor_api.py and web/README.md):
  *
  *   POST /generate {headword, pos, gender, paradigm, stems, overrides}
  *     → {family, resolved, stems, delivered, roles, note,

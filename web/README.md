@@ -1,32 +1,78 @@
-# Prussian dictionary web (Lexonomy editor + flexsrv)
+# Prussian dictionary web (Lexonomy editor + flexsrv + wirdeins)
 
-The web/integration half of the Prussian dictionary. It owns the **Lexonomy
-custom entry editor** (uploaded as dictionary config) and `flexsrv`, the HTTP
-edge that serves the **real generator's** inflection tables to that editor. The
-morphology itself lives in the `fst` repo — this repo only consumes it.
+The web half of the Prussian dictionary, in one Python process:
+
+- the **Lexonomy custom entry editor** (uploaded as dictionary config) and its
+  JSON API (`/generate`, `/paradigms`, …) serving the **real generator's**
+  inflection tables;
+- the **wirdeins compatibility server**: the HTTP contract of
+  wirdeins.twanksta.org (`/search/`, `/auto/`, `/more/` + the mirrored
+  frontend), reading the entries live from Lexonomy's dictionary SQLite.
+
+The morphology itself lives in the `fst` repo — this repo only consumes it.
+There is no Go code and no build or export step any more: an entry saved in
+Lexonomy shows up in wirdeins within about a second.
+
+```
+Lexonomy ──save──► dictionary SQLite (entries + history)
+                        │  store.LiveStore: polls max(history.id), reloads changed entry_ids
+                        ▼
+                 flexsrv (bottle) ──► wirdeins: /search/ /auto/ /more/ + frontend
+                        │         ──► editor API: /generate /paradigms /slots /health
+                        ▼
+                 fst: generator atoms + build_analyzer.entry_forms
+```
+
+`/more/` computes its cells with **the same function the analyzer is baked
+with** (`fst/gen/build_analyzer.entry_forms`: `generate(stage 0/1) ⊕ overrides`,
+an override replaces its slot), and the morphological NVH fields are read by
+fst's own `compress_forms.parse_nvh`. wirdeins therefore shows exactly the forms
+the analyzer recognises — there is one reading of `stemOverrides` /
+`inflectedForm`, not one per consumer.
 
 ## Layout
 
-- `editor/custom_editor.js` — the editor (contract: `editor()` + `getValue()`,
-  plus `update()` / `destroy()` / `isValid`).
-- `editor/custom_editor.css` — styles, injected while the editor is mounted.
-- `editor/preview.html` — standalone harness with sample entries; calls the service.
-- `flexsrv.py` — the flexion service (dev-only, stdlib `http.server`).
-- `paradigm_layout.py` — slot cells → table grid, shared with the (future)
-  wirdeins compatibility server.
+- `flexsrv.py` — entry point: assembles the bottle app, CLI, threaded WSGI server.
+- `editor_api.py` — the editor's JSON endpoints (`generate_payload` & co.).
+- `wirdeins.py` — the legacy fragments: entry → cells → legacy table HTML.
+- `store.py` — Lexonomy SQLite → in-memory entries; search/suggest; live reload.
+- `templates/` — Jinja2 versions of the legacy HTML fragments (captured
+  verbatim from the live site — do not "clean them up", `app_n-min.js` and the
+  CSS depend on their shapes).
+- `wirdeins/` — the mirrored twanksta frontend served at `/`.
+- `editor/custom_editor.js|.css` — the editor (contract: `editor()` +
+  `getValue()`, plus `update()` / `destroy()` / `isValid`); `editor/preview.html`
+  — standalone harness with sample entries.
+- `paradigm_layout.py` — slot cells → table grid for the editor.
 - `engine.py` — locates the `fst` engine (`PRUSSIAN_FST_ROOT` or the sibling
-  `../fst`) and re-exports its `generator`.
-- `tests/test_flexsrv.py` — service tests (build the atom FSTs on demand).
+  `../fst`), re-exports `generator`, `compress_forms`, `build_analyzer` and the
+  shared pyhfst `LOCK`.
+- `tests/` — editor API tests (`test_flexsrv.py`) and store/wirdeins tests
+  (`test_wirdeins.py`, incl. golden `/more/` fragments from the live site).
 
-## Run it (dev)
+## Run it
+
+From the repository root (Python 3.12, managed by uv):
 
 ```bash
 (cd ../fst && make atoms)          # build the generator's atom FSTs (once)
-uv run python flexsrv.py          # flexion service on http://127.0.0.1:8080
-python3 -m http.server -d editor 8777   # → http://localhost:8777/preview.html
+uv sync
+uv run python web/flexsrv.py --db ../lexonomy/data/dicts/prussian.sqlite
+#   → http://127.0.0.1:8080/  wirdeins, and the editor API on the same port
+uv run python web/flexsrv.py      # editor API only (no --db)
+uv run pytest                     # tests
+python3 -m http.server -d web/editor 8777   # → http://localhost:8777/preview.html
 ```
 
 `preview.html?flex=http://host:port` points the harness at another instance.
+`--host 0.0.0.0 --port …` to expose it; behind a reverse proxy the threaded
+stdlib server is enough, and the app is plain WSGI (`flexsrv.create_app`) for
+gunicorn & co.
+
+The dictionary SQLite is opened with a normal (not `mode=ro`) handle so it sees
+Lexonomy's WAL; flexsrv never writes to it. A history reset (e.g. a purge
+re-import with `import2dict.py`) or more than 500 changed entries since the last
+poll trigger a full reload.
 
 ## Flexion service contract
 
@@ -94,9 +140,7 @@ source, commit fetched 2026-09-30):
 
 ## NVH shape (real, from `corpus/parsed/twanksta_dmlex.nvh`)
 
-DMLex-flavoured NVH. Note this differs from the stale
-`dictionary/internal/core/lexonomy.go` model (which expected `gender`/`override`
-under the sense and `paradigm` directly under it):
+DMLex-flavoured NVH. :
 
 ```
 entry: <headword>
@@ -166,6 +210,4 @@ override): a delivered stem rewrites the rule for its whole role, a cell
 override wins over everything for that single slot.
 
 The service is reachable directly via `fetch` (CORS `*`), so no patch to
-Lexonomy's backend (`lexonomy.py`) is needed while editing locally. In
-production the same contract can be served by the Go `dictionary` service /
-`Prussian_MCP`.
+Lexonomy's backend (`lexonomy.py`) is needed.

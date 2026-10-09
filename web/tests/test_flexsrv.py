@@ -1,4 +1,4 @@
-"""Tests für den Flexions-Microservice (web/flexsrv.py).
+"""Tests für die Editor-API (web/editor_api.py, ausgeliefert über web/flexsrv.py).
 
 Geprüft wird die Kante, die der Lexonomy-Editor sieht: die Response-Form
 ``{slots:[{slot, form, source}]}`` samt ``source = override > rule``. Die
@@ -26,6 +26,7 @@ import pytest
 WEB = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(WEB))
 
+import editor_api
 import engine
 import flexsrv
 
@@ -76,18 +77,18 @@ def forms_by_slot(response) -> dict[str, str | None]:
     ("part.prf.pss.fem.sg.acc", "Part. Perf. Passive Fem. Acc. Sg."),
 ])
 def test_slot_label(slot, label):
-    assert flexsrv.slot_label(slot) == label
+    assert editor_api.slot_label(slot) == label
 
 
 def test_slot_label_falls_back_to_the_key():
-    assert flexsrv.slot_label("sg.datx") == "sg.datx"
-    assert flexsrv.slot_label("quatsch") == "quatsch"
+    assert editor_api.slot_label("sg.datx") == "sg.datx"
+    assert editor_api.slot_label("quatsch") == "quatsch"
 
 
 # ── /generate: die Response, die der Editor rendert ──────────────────────────
 
 def test_noun_matches_the_generator(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "Dēiws", "pos": "noun-masc", "paradigm": "36"})
     assert forms_by_slot(res) == {
         "sg.nom": "Dēiws", "sg.gen": "Dēiwas", "sg.dat": "Dēiwu", "sg.acc": "Dēiwan",
@@ -96,7 +97,7 @@ def test_noun_matches_the_generator(atoms):
 
 
 def test_pos_carries_the_gender_and_is_split(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "dumslē", "pos": "noun-neut", "paradigm": "53"})
     assert (res["pos"], res["gender"]) == ("noun", "neut")
     assert res["family"] == "istem" and res["resolved"] == "53"
@@ -104,13 +105,13 @@ def test_pos_carries_the_gender_and_is_split(atoms):
 
 
 def test_explicit_gender_wins_over_the_pos(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "Dēiws", "pos": "noun", "gender": "masc", "paradigm": "36"})
     assert res["gender"] == "masc"
 
 
 def test_adjective_keeps_all_degrees(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "wilnis", "pos": "adj", "paradigm": "27"})
     got = forms_by_slot(res)
     assert got["msc.sg.nom"] == "wilnis"
@@ -121,7 +122,7 @@ def test_adjective_keeps_all_degrees(atoms):
 
 
 def test_verb_table_and_participles(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "appautwei", "pos": "verb", "paradigm": "85"})
     got = forms_by_slot(res)
     assert got["prs.sp3"] == "appaua"                             # Präsens
@@ -135,27 +136,27 @@ def test_verb_table_and_participles(atoms):
 
 
 def test_verb_variant_87_is_resolved_from_the_lemma(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "kandtwei", "pos": "verb", "paradigm": "87"})
     assert res["paradigm"] == "87" and res["resolved"] == "87a"
 
 
 def test_delivered_stem_overrides_the_rule(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "Patals", "pos": "noun-masc", "paradigm": "32",
          "stems": {"obl": "Patall"}})
     assert forms_by_slot(res)["sg.gen"] == "Patallas"
 
 
 def test_role_metadata_reports_default_and_delivered_stem(atoms):
-    plain = flexsrv.generate_payload(
+    plain = editor_api.generate_payload(
         {"headword": "Patals", "pos": "noun-masc", "paradigm": "32"})
     obl = next(r for r in plain["roles"] if r["role"] == "obl")
     assert obl["label"] == "Oblique/nominal stem"
     assert (obl["stem"], obl["default"], obl["source"]) == ("Patal", "Patal", "rule")
     assert plain["delivered"] == {}
 
-    fixed = flexsrv.generate_payload(
+    fixed = editor_api.generate_payload(
         {"headword": "Patals", "pos": "noun-masc", "paradigm": "32",
          "stems": {"obl": "Patall"}})
     obl = next(r for r in fixed["roles"] if r["role"] == "obl")
@@ -165,7 +166,7 @@ def test_role_metadata_reports_default_and_delivered_stem(atoms):
 
 
 def test_verb_roles_cover_every_atom_with_a_label(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "appautwei", "pos": "verb", "paradigm": "85"})
     roles = {r["role"]: r for r in res["roles"]}
     assert set(roles) == {"pres", "nonfin", "partPresAct", "partPerfAct", "partPerfPass"}
@@ -173,7 +174,7 @@ def test_verb_roles_cover_every_atom_with_a_label(atoms):
 
 
 def test_delivered_thematic_vowel_regenerates_the_paradigm(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "rusītwei", "pos": "verb", "paradigm": "134",
          "stems": {"pres": "rusē"}})
     assert forms_by_slot(res)["prs.sp3"] == "rusēi"
@@ -181,21 +182,21 @@ def test_delivered_thematic_vowel_regenerates_the_paradigm(atoms):
 
 
 def test_unknown_role_stem_is_rejected(atoms):
-    with pytest.raises(flexsrv.ApiError, match="unknown role"):
-        flexsrv.generate_payload(
+    with pytest.raises(editor_api.ApiError, match="unknown role"):
+        editor_api.generate_payload(
             {"headword": "Patals", "pos": "noun-masc", "paradigm": "32",
              "stems": {"quatsch": "X"}})
 
 
 def test_stem_outside_the_alphabet_is_a_client_error(atoms):
-    with pytest.raises(flexsrv.ApiError, match="allowed alphabet"):
-        flexsrv.generate_payload(
+    with pytest.raises(editor_api.ApiError, match="allowed alphabet"):
+        editor_api.generate_payload(
             {"headword": "Patals", "pos": "noun-masc", "paradigm": "32",
              "stems": {"obl": "Pa tall"}})
 
 
 def test_slots_come_back_in_role_order_with_groups(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "appautwei", "pos": "verb", "paradigm": "85"})
     slots = [cell["slot"] for cell in res["slots"]]
     assert slots[0].startswith("prs.") and slots[-1].startswith("part.")
@@ -208,7 +209,7 @@ def test_slots_come_back_in_role_order_with_groups(atoms):
 # ── Tabellenlayout (wie wirdeins.twanksta.org) ───────────────────────────────
 
 def test_noun_table_is_one_case_by_number_matrix(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "Dēiws", "pos": "noun-masc", "paradigm": "36"})
     tables = res["tables"]
     assert len(tables) == 1 and tables[0]["title"] is None
@@ -222,7 +223,7 @@ def test_noun_table_is_one_case_by_number_matrix(atoms):
 
 
 def test_adjective_has_three_gender_blocks_plus_degrees_and_adverb(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "wilnis", "pos": "adj", "paradigm": "27"})
     tables = res["tables"]
     assert [t["title"] for t in tables] == [
@@ -247,7 +248,7 @@ def test_adjective_has_three_gender_blocks_plus_degrees_and_adverb(atoms):
 
 
 def test_verb_lays_out_moods_and_participles(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "appautwei", "pos": "verb", "paradigm": "85"})
     titles = [t["title"] for t in res["tables"]]
     assert titles[:4] == ["Indicative", "Subjunctive", "Optative", "Imperative"]
@@ -263,7 +264,7 @@ def test_verb_lays_out_moods_and_participles(atoms):
 
 
 def test_override_shows_up_in_the_table_cell(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "Dēiws", "pos": "noun-masc", "paradigm": "36",
          "overrides": {"sg.dat": "deiwu"}})
     cell = res["tables"][0]["blocks"][0]["cells"][2][0]
@@ -273,7 +274,7 @@ def test_override_shows_up_in_the_table_cell(atoms):
 
 
 def test_unknown_paradigm_has_no_tables():
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "quatsch", "pos": "noun", "paradigm": "99"})
     assert res["tables"] == []
 
@@ -285,15 +286,15 @@ def test_empty_cell_stays_in_the_table(atoms, monkeypatch):
     Aussage über die Grammatik, nicht über den Dienst. Die Lücke wird deshalb
     hier erzwungen (der Dienst muss sie nur durchreichen).
     """
-    real = flexsrv.gen.generate
+    real = editor_api.gen.generate
 
     def holed(pos, paradigm, **kwargs):
         out = dict(real(pos, paradigm, **kwargs))
         out["pl.acc"] = ()
         return out
 
-    monkeypatch.setattr(flexsrv.gen, "generate", holed)
-    res = flexsrv.generate_payload(
+    monkeypatch.setattr(editor_api.gen, "generate", holed)
+    res = editor_api.generate_payload(
         {"headword": "Dēiws", "pos": "noun-masc", "paradigm": "36"})
     gaps = [c for c in res["slots"] if c["form"] is None]
     assert [c["slot"] for c in gaps] == ["pl.acc"]
@@ -303,7 +304,7 @@ def test_empty_cell_stays_in_the_table(atoms, monkeypatch):
 # ── Overrides: die Editor-Rückrichtung ───────────────────────────────────────
 
 def test_override_wins_over_the_rule(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "Dēiws", "pos": "noun-masc", "paradigm": "36",
          "overrides": {"sg.dat": "deiwu"}})
     cell = next(c for c in res["slots"] if c["slot"] == "sg.dat")
@@ -312,7 +313,7 @@ def test_override_wins_over_the_rule(atoms):
 
 
 def test_override_fills_an_empty_cell(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "appautwei", "pos": "verb", "paradigm": "85",
          "overrides": {"part.prs.act.fem.sg.acc": "appawintījau"}})
     cell = next(c for c in res["slots"]
@@ -323,7 +324,7 @@ def test_override_fills_an_empty_cell(atoms):
 
 def test_override_outside_the_vocabulary_is_kept(atoms):
     """Ein Override mit erfundenem Slot darf dem Editor nicht verlorengehen."""
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "Dēiws", "pos": "noun-masc", "paradigm": "36",
          "overrides": {"sg.datx": "X"}})
     cell = next(c for c in res["slots"] if c["slot"] == "sg.datx")
@@ -332,7 +333,7 @@ def test_override_outside_the_vocabulary_is_kept(atoms):
 
 
 def test_empty_override_values_are_dropped(atoms):
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "Dēiws", "pos": "noun-masc", "paradigm": "36",
          "overrides": {"sg.dat": "  ", "sg.gen": "dēiwas"}})
     cells = {c["slot"]: c["source"] for c in res["slots"]}
@@ -342,14 +343,14 @@ def test_empty_override_values_are_dropped(atoms):
 # ── Fehler: die Meldung landet in der UI ─────────────────────────────────────
 
 def test_unknown_paradigm_is_a_note_not_an_error():
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "quatsch", "pos": "noun", "paradigm": "99"})
     assert res["slots"] == [] and res["resolved"] is None
     assert "99" in res["note"]
 
 
 def test_unknown_paradigm_still_echoes_the_overrides():
-    res = flexsrv.generate_payload(
+    res = editor_api.generate_payload(
         {"headword": "quatsch", "pos": "noun", "paradigm": "99",
          "overrides": {"sg.nom": "quatsch"}})
     assert [c["source"] for c in res["slots"]] == ["override"]
@@ -367,29 +368,29 @@ def test_unknown_paradigm_still_echoes_the_overrides():
       "stems": {"quatsch": "x"}}, "unknown role"),
 ])
 def test_bad_request_raises_api_error(request_, needle):
-    with pytest.raises(flexsrv.ApiError, match=needle):
-        flexsrv.generate_payload(request_)
+    with pytest.raises(editor_api.ApiError, match=needle):
+        editor_api.generate_payload(request_)
 
 
 # ── Vokabular-Endpunkte ──────────────────────────────────────────────────────
 
 def test_paradigms_list_matches_the_generator():
-    listed = flexsrv.paradigms_payload("noun")
+    listed = editor_api.paradigms_payload("noun")
     keys = {(p["pos"], p["paradigm"]) for p in listed}
-    assert keys == {k for k in flexsrv.gen.PARADIGMS if k[0] == "noun"}
+    assert keys == {k for k in editor_api.gen.PARADIGMS if k[0] == "noun"}
     assert all(p["atoms"] and p["family"] for p in listed)
 
 
 def test_paradigms_reject_a_foreign_pos():
-    with pytest.raises(flexsrv.ApiError, match="unknown"):
-        flexsrv.paradigms_payload("conj")
+    with pytest.raises(editor_api.ApiError, match="unknown"):
+        editor_api.paradigms_payload("conj")
 
 
 def test_health_lists_the_missing_atoms(monkeypatch):
-    monkeypatch.setattr(flexsrv.gen, "atom_targets",
+    monkeypatch.setattr(editor_api.gen, "atom_targets",
                         lambda: [(("noun", "36", "obl"),
                                   None, None, Path("/nope/gen-x.hfstol"))])
-    health = flexsrv.health_payload()
+    health = editor_api.health_payload()
     assert health["ok"] is False and health["missing"] == ["gen-x.hfstol"]
 
 
@@ -448,13 +449,16 @@ def test_preflight_is_answered(server):
         assert "POST" in response.headers["Access-Control-Allow-Methods"]
 
 
-def test_unknown_path_and_broken_json_are_400(server):
-    for request in (
-        urllib.request.Request(f"{server}/nope"),
-        urllib.request.Request(f"{server}/generate", data=b"{not json",
-                               method="POST"),
-    ):
-        with pytest.raises(urllib.error.HTTPError) as caught:
-            urllib.request.urlopen(request, timeout=10)
-        assert caught.value.code == 400
-        assert json.loads(caught.value.read())["error"]
+def test_broken_json_is_400(server):
+    request = urllib.request.Request(f"{server}/generate", data=b"{not json",
+                                     method="POST")
+    with pytest.raises(urllib.error.HTTPError) as caught:
+        urllib.request.urlopen(request, timeout=10)
+    assert caught.value.code == 400
+    assert json.loads(caught.value.read())["error"]
+
+
+def test_unknown_path_is_404(server):
+    with pytest.raises(urllib.error.HTTPError) as caught:
+        urllib.request.urlopen(f"{server}/nope", timeout=10)
+    assert caught.value.code == 404

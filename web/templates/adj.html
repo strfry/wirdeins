@@ -1,0 +1,51 @@
+{#- /more/ for an adjective: three .ohoo gender tables (positive), then the
+    .newline block with the degree table (comparative/superlative spoilers) and
+    the adverb table. -#}
+{%- from "_tables.html" import subst, spoiler_trio -%}
+    		<div class="ohoo">{{ subst(masc) }}</div>
+				 <div class="ohoo">{{ subst(fem) }}</div>
+				<div class="ohoo">{{ subst(neut) }}</div>
+							<div class="newline">
+
+					<div class="ohoo">
+					<table id="subst" width="auto">
+				<tbody>
+				<tr>
+					<th class="null"></th>
+					<th class="hea2">Adjective</th>
+					<th class="hea2">Comparative</th>
+					<th class="hea2">Superlative</th>
+				</tr>
+				<tr>
+					<th class="hea"></th>
+					<td><span class="verb">{{ positive }}</span>
+					</td>
+					<td>{{ spoiler_trio(cmp) }}					</td>
+					<td>{{ spoiler_trio(sup) }}</td>
+				</tr>
+			</tbody>
+				</table>
+				</div>
+
+					<div class="ohoo">
+					<table id="subst" width="auto">
+				<tbody>
+				<tr>
+					<th class="null"></th>
+					<th class="hea2">Adverb</th>
+					<th class="hea2">Comparative</th>
+					<th class="hea2">Superlative</th>
+				</tr>
+				<tr>
+					<th class="hea"></th>
+					<td><span class="verb">{{ adv }}</span>
+					</td>
+					<td><span class="verb">{{ adv_cmp }}</span>
+					</td>
+					<td><span class="verb">{{ adv_sup }}</span>
+					</td>
+				</tr>
+			</tbody>
+				</table>
+				</div>
+					</div>

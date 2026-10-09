@@ -1,8 +1,8 @@
 """Paradigma-Layout: Slot-Zellen → Tabellenraster (wie wirdeins.twanksta.org).
 
-Geteilt von den Web-Teilen: ``flexsrv`` liefert das Raster als JSON an den
-Lexonomy-Editor, der (künftige) wirdeins-Kompatibilitätsserver rendert dieselbe
-Struktur als HTML. Reine Abbildung — kein HTTP, kein IO.
+Die Editor-API (``editor_api``) liefert das Raster als JSON an den
+Lexonomy-Editor. (Der wirdeins-Adapter rendert das Legacy-HTML mit eigenen,
+vom Original mitgeschnittenen Templates.) Reine Abbildung — kein HTTP, kein IO.
 
 Die Slot-Beschriftungen und das Raster stehen hier (nicht im Generator), damit
 der Generator datenfrei bleibt und beide Konsumenten dieselbe Anzeige bekommen.

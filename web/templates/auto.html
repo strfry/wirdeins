@@ -1,0 +1,2 @@
+{#- /auto/ → injected into #suggest-wrap. -#}
+{% for s in suggestions %}<a class="suggest" href="#{{ s.word }}"><b>{{ s.word }}</b>{% if s.first %}<span class='translation-child'><span class='translation-number'>1</span> {{ s.first }}</span>{% endif %}</a>{% endfor %}

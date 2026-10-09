@@ -1,0 +1,190 @@
+entry: Dēiws
+  id: Dēiws
+  pos: noun
+  gender: masc
+  paradigm: 36
+  sense:
+    en: God
+    de: Gott
+    lt: Dievas
+    lv: Dievs
+    pl: Bóg
+    ru: Бог
+  legacy:
+    desc: [Deiws 37]
+entry: kalbītwei
+  id: kalbītwei
+  pos: verb
+  paradigm: 136
+  label: DIA
+  label: MK
+  sense:
+    en: to quarrel (argue)
+    de: streiten
+    lt: ginčytis
+    lv: strīdēties
+    pl: spierać się
+    ru: спорить
+  stemOverrides: pret=kalbē partPresAct=kalbant
+  inflectedForm: kalbisei
+    tag: opt
+  inflectedForm: kalbīwusjan
+    tag: part.prf.act.fem.sg.acc
+  inflectedForm: kalbitāi
+    tag: part.prf.pss.neu.pl.nom
+  legacy:
+    desc: [kalbēken DIA MK]
+entry: begalbis
+  id: begalbis
+  pos: adj
+  paradigm: 27
+  label: MK
+  label: DRV
+  sense:
+    en: defenceless
+    en: helpless
+    de: wehrlos
+    de: hilflos
+    lt: beginklis (bejėgis)
+    lt: bejėgis (neginamas)
+    lv: bezpalīdzīgs
+    pl: bezbronny
+    ru: безпомощный
+    ru: беззащитный
+  inflectedForm: begalbjans
+    tag: fem.pl.acc
+  inflectedForm: begalbjamans
+    tag: fem.pl.dat
+  inflectedForm: begalbjan
+    tag: fem.pl.gen
+  inflectedForm: begalbjas
+    tag: fem.pl.nom
+  inflectedForm: begalbjan
+    tag: fem.sg.acc
+  inflectedForm: begalbjai
+    tag: fem.sg.dat
+  inflectedForm: begalbjas
+    tag: fem.sg.gen
+  inflectedForm: begalbin
+    tag: msc.sg.acc
+  inflectedForm: begalbismu
+    tag: msc.sg.dat
+  inflectedForm: begalbis
+    tag: msc.sg.gen
+  inflectedForm: begalbins
+    tag: neu.pl.acc
+  inflectedForm: begalbimans
+    tag: neu.pl.dat
+  inflectedForm: begalbin
+    tag: neu.pl.gen
+  inflectedForm: begalbismu
+    tag: neu.sg.dat
+  inflectedForm: begalbis
+    tag: neu.sg.gen
+  legacy:
+    desc: [Be-, Galban DRV, Begīdis MK]
+entry: Patals
+  id: Patals
+  pos: noun
+  gender: masc
+  paradigm: 32
+  label: DK
+  label: VM
+  pronunciation:
+    soundFile: https://wirdeins.twanksta.org/upload/audio/patals.mp3
+    label: deadAudio
+  sense:
+    en: Potollo
+    de: Potollo
+    lt: Patulas
+    lv: Patols
+    pl: Patol
+    ru: Патол
+    ru: Патал
+  stemOverrides: obl=Patall
+  legacy:
+    desc: [Patols DK VM]
+    article: <div class="rightimage"><a class="fullview" href="/upload/patals.png"><img src="/upload/sm_patals.png"/></a><p><strong>Patals</strong> na <strong> Wīdawutjas karjangun</strong>. Autōrs <strong>S. Grunau (XVI mm.)</strong>, panzdau ilustraciōni pastāi kōpitan pra kittans autōrans.</p>\n</div> <p>Dēiws <a href="#Patals"><strong>Patals</strong></a> paminītan pirman rēizan en 1418 m. en <em>Collatio Episcopi Varmiensis Facta Coram Summo Pontifice Per Dominum Andream, Plebanum In Danczk</em> (Wārmis bīskapas pawakisnā pāwestu per Gudānitas pappan rikijjan Andrjan):</p>\n<blockquote>\n<p>[..] Ōrdens enwaidinna, kāi ast spārts padāwingi. Kāigi spārts tāns druwēi en Dēiwan, prēi pagaūsenin tūliskan pawaidinna brenduns Prūsas erkarjaūsnas naūtins. Iz stan tāutan en subsmu pagaūsnju bēi prāts izgūntun be bēi izgūntan zmānes šlūzintjai demōnamans, zmāninantjai <a href="#Patals">Patalan</a>, <a href="#Patrīmps">Natrīmpan</a>, be kittans nigīdingjans fantāzmans [..]</p>\n</blockquote>\n<p>Dīgi <span style="line-height: 1.6em;">paminītan en 1529 m. en <strong>Simōnas Grunau</strong> (1470-1530) <em>Prūsiskai krōnikei</em>:</span></p>\n<blockquote>\n<p>Prei pirman tenēi zēidi <a href="#Prutennis">Prutennju</a> be tenesse deiwammans sklāitewingiskans buttans. Deiwāi bēi trīs: <a href="#Patals">Patals</a> (Patollo), <a href="#Patrimps">Patrīmps</a> (Patrimpo) be <a href="#Perkuns">Perkūns</a> (Perkuno), tenēisan [buweīns] bēi ussjan wāltin stāras anzans.</p>\n</blockquote>\n<p><strong>M. Prātorius</strong> autenginna prei <strong>Hennenbergeran</strong>, kaddan ebpeisāi <a href="#Patals"><strong>Patalan</strong></a> be <a href="#Ramawa"><strong>Rāmawan</strong></a>:</p>\n<blockquote>\n<p>Be tāns [— anzans] turīwuns trins wippins: na aīnan bēi bēi tenēisan dēiwas <a href="#pikuls">Pikolio</a> (Pickollos), anga <a href="#Patals">Patalas</a> (Potollos), etwaidinsnā, sen ilgan siwaskebbelingin bārdan, bālan kāigi prēi nigiwītan prusnan, sen gaīlan pastan na galwan, dirīwusis iz pakaktan. Tenesse zentlan be teisinā bēi zmānes be pekkus kērpetis. Per debīkans swentikans en tenesse teīsin en pādamans deginna di lajjan. Be tāns deznimai perwaidinna si en buttamans stēisan lāiman zmānin, sklāitewingi, ik stwen ainunts wīrst aulaūwuns, tenēi ni kwaitīwusis tūlan apperautun deiwammans — stawīdan tāns lāilina en naktins, adder ik pergūbi tīrtan rēizan, sta tenesmu prawerēi apperautun zmānes krāujan — staddan waidilāts pjaūwa sebbei rānkan, kāi tāns īmlai kraujātektwei, be ik en anzanu kirdītwei burblelausna, sta bēi pakawīngi  (pakkajas) zentlan.</p>\n</blockquote>
+entry: wilnis
+  id: wilnis-1
+  homograph: 1
+  pos: noun
+  gender: masc
+  paradigm: 40
+  label: E
+  sense:
+    en: jacket (coat)
+    de: Jackett
+    de: Rock (Jackett)
+    lt: švarkas
+    lv: svārki
+    lv: žakete
+    pl: marynarka (żakiet)
+    ru: пиджак
+  legacy:
+    desc: [Wilnis E 477]
+entry: wilnis
+  id: wilnis-2
+  homograph: 2
+  pos: noun
+  gender: masc
+  paradigm: 41
+  label: E
+  sense:
+    en: burbot
+    de: Quappe (Aalquappe)
+    de: Aalquappe
+    lt: vėgėlė
+    lv: vēdzele
+    pl: miętus
+    ru: налим
+  legacy:
+    desc: [Wilnis E 566]
+entry: wilnis
+  id: wilnis-3
+  homograph: 3
+  pos: adj
+  paradigm: 27
+  label: E
+  label: VM
+  sense:
+    en: woollen
+    de: Woll- (wollen)
+    de: wollen
+    lt: vilnonis
+    lv: vilnas (vilnains)
+    lv: vilnains
+    pl: wełniany
+    ru: шерстяной
+  inflectedForm: wilnjans
+    tag: fem.pl.acc
+  inflectedForm: wilnjamans
+    tag: fem.pl.dat
+  inflectedForm: wilnjan
+    tag: fem.pl.gen
+  inflectedForm: wilnjas
+    tag: fem.pl.nom
+  inflectedForm: wilnjan
+    tag: fem.sg.acc
+  inflectedForm: wilnjai
+    tag: fem.sg.dat
+  inflectedForm: wilnjas
+    tag: fem.sg.gen
+  inflectedForm: wilnin
+    tag: msc.sg.acc
+  inflectedForm: wilnismu
+    tag: msc.sg.dat
+  inflectedForm: wilnis
+    tag: msc.sg.gen
+  inflectedForm: wilnins
+    tag: neu.pl.acc
+  inflectedForm: wilnimans
+    tag: neu.pl.dat
+  inflectedForm: wilnin
+    tag: neu.pl.gen
+  inflectedForm: wilnismu
+    tag: neu.sg.dat
+  inflectedForm: wilnis
+    tag: neu.sg.gen
+  legacy:
+    desc: aj [Wilnis E 477 VM]

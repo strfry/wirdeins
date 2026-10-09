@@ -1,0 +1,159 @@
+{#- /more/ for a verb: the .left-verbs indicative block (Present/Past, then the
+    composed Perfect and Future) and the .right-verbs column (Optative,
+    Imperative, the three participle spoilers, Subjunctive). Captured verbatim
+    from the live site. -#}
+{%- from "_tables.html" import spoiler_trio -%}
+   
+<div class="left-verbs">
+
+          <table width="100%" class="table-hi" style="table-layout:fixed;" border="0" cellspacing="0" cellpadding="0">
+            <tbody><tr height="10px">
+              <td width="14px" nowrap="">&nbsp;
+                  </td>
+              <td rowspan="2" align="left" class="heading-title" nowrap="">
+                <h3>Indicative mood</h3>
+              </td>
+              <td width="100%" nowrap="">&nbsp;
+                  </td>
+            </tr>
+            <tr height="10px">
+              <td style="border-top:1px solid #e7ecef ;border-left:1px solid #e7ecef ;border-bottom:0 ;">&nbsp;</td>
+              <td style="border-top:1px solid #e7ecef ;border-right:1px solid #e7ecef ;border-bottom:0 ;">&nbsp;</td>
+            </tr>
+            <tr height="100%">
+              <td colspan="3" align="left" valign="top" style="border-left:1px solid #e7ecef ;border-right:1px solid #e7ecef ;border-bottom:1px solid #e7ecef ;border-top:0; padding: 5px; padding-left: 6px">
+
+
+                <table class="response" width="100%" height="100%" border="0" cellspacing="4" cellpadding="0">
+                  <tbody><tr>
+                    <td valign="top"><span class="head">Present</span><br>{% for l in present %}<tt></tt><span class="pronoun">{{ l.pronoun }} </span><tt></tt><span class="verb">{{ l.form }}</span><br>{% endfor %}
+                    </td>
+                    <td valign="top">
+                	<span class="head">Past</span><br>{% for l in past %}<tt></tt><span class="pronoun">{{ l.pronoun }} </span><tt></tt><span class="verb">{{ l.form }}</span><br>{% endfor %}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td valign="top"><span class="head">Perfect</span><br>{% for l in perfect %}<tt></tt><span class="pronoun">{{ l.pronoun }} </span><tt></tt><span class="verb">{{ l.form }}</span><br>{% endfor %}
+                    </td>
+                    <td valign="top"><span class="head">Future</span><br>{% for l in future %}<tt></tt><span class="pronoun">{{ l.pronoun }} </span><tt></tt><span class="verb">{{ l.form }}</span><br>{% endfor %}
+                    </td>
+                  </tr>
+                </tbody></table>
+
+                    </td>
+            </tr>
+          </tbody></table>
+
+</div>
+<div class="right-verbs">
+
+<table width="100%" height="40%" border="0" style="padding-right:0px">
+      <tbody>
+              <td width="35%" style="padding-left:5px">
+           <table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
+            <tbody><tr height="10px">
+              <td width="14px" nowrap=""> &nbsp;
+                  </td>
+              <td rowspan="2" align="center" style="padding: 5px" nowrap="">
+                <h3>Optative</h3>
+              </td>
+              <td width="100%" nowrap=""> &nbsp;
+                  </td>
+            </tr>
+            <tr height="10px">
+              <td style="border-top:1px solid #e7ecef ;border-left:1px solid #e7ecef ;border-bottom:0 ;">&nbsp;</td>
+              <td style="border-top:1px solid #e7ecef ;border-right:1px solid #e7ecef ;border-bottom:0 ;">&nbsp;</td>
+            </tr>
+            <tr class="infinitive-content">
+              <td colspan="3" align="left" valign="bottom" style="border-left:1px solid #e7ecef ;border-right:1px solid #e7ecef ;border-bottom:1px solid #e7ecef ;border-top:0 ; padding: 5px ;padding-left: 6px">
+                <tt></tt>
+
+                <span class="verb">{{ optative }}</span><br><br>
+
+              </td>
+            </tr>
+          </tbody></table>
+        </td>
+        <td width="35%" style="padding-left:5px">
+          <table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
+            <tbody><tr height="10px">
+              <td width="15px" nowrap=""> &nbsp;
+                  </td>
+              <td rowspan="2" align="center" style="padding: 5px;" nowrap="">
+                <h3>Imperative</h3>
+              </td>
+              <td width="100%" nowrap="">&nbsp;
+                  </td>
+            </tr>
+            <tr height="10px">
+              <td style="border-top:1px solid #e7ecef ;border-left:1px solid #e7ecef ;border-bottom:0 ;">&nbsp;</td>
+              <td style="border-top:1px solid #e7ecef ;border-right:1px solid #e7ecef ;border-bottom:0 ;">&nbsp;</td>
+            </tr>
+            <tr height="100%">
+              <td colspan="3" align="left" valign="top" style="border-left:1px solid #e7ecef ;border-right:1px solid #e7ecef ;border-bottom:1px solid #e7ecef ;border-top:0 ; padding: 5px ;padding-left: 6px">
+                <tt></tt>
+
+               <span class="pronoun">(tū) </span>
+<span class="verb">{{ imp_sg }}</span><br>
+			   <span class="pronoun">(jūs) </span>
+			   <span class="verb">{{ imp_pl }}</span>
+
+              </td>
+            </tr>
+          </tbody></table>
+        </td>
+      <tr>
+       <td colspan="2" style="padding-left:5px">
+        <table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
+             <tbody><tr height="10px">
+              <td width="18px" nowrap=""> &nbsp;
+                  </td>
+              <td rowspan="2" align="center" style="padding: 5px 17px" nowrap="">
+                <h3>Participle</h3>
+              </td>
+              <td width="55%" nowrap=""> &nbsp;
+                  </td>
+            </tr>
+            <tr height="10px">
+              <td style="border-top:1px solid #e7ecef ;border-left:1px solid #e7ecef ;border-bottom:0 ;">&nbsp;</td>
+              <td style="border-top:1px solid #e7ecef ;border-right:1px solid #e7ecef ;border-bottom:0 ;">&nbsp;</td>
+            </tr>
+            <tr height="100%">
+              <td colspan="3" align="left" valign="top" style="border-left:1px solid #e7ecef ;border-right:1px solid #e7ecef ;border-bottom:1px solid #e7ecef ;border-top:0 ; padding: 5px;padding-left: 6px">
+                <table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
+                  <tbody>{% for p in participles %}                    <tr><td valign="top" align="center" style="padding-top: 10px">                   <span class="head">{{ p.label }}</span><br><tt></tt>
+{{ spoiler_trio(p.spoiler) }}
+                    </td>
+                    </tr>{% endfor %}
+                  </tbody></table>
+              </td>
+            </tr>
+          </tbody></table>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" style="padding-left:5px">
+        <table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
+            <tbody><tr height="10px">
+              <td width="18px" nowrap=""> &nbsp;
+                  </td>
+              <td rowspan="2" align="center" style="padding: 3px" nowrap="">
+                <h3>Subjunctive</h3>
+              </td>
+              <td width="100%" nowrap=""> &nbsp;
+              </td>
+            </tr>
+            <tr height="10px">
+              <td style="border-top:1px solid #e7ecef ;border-left:1px solid #e7ecef ;border-bottom:0 ;">&nbsp;</td>
+              <td style="border-top:1px solid #e7ecef ;border-right:1px solid #e7ecef ;border-bottom:0 ;">&nbsp;</td>
+            </tr>
+            <tr class="infinitive-content">
+              <td colspan="3" align="left" valign="top" style="border-left:1px solid #e7ecef ;border-right:1px solid #e7ecef ;border-bottom:1px solid #e7ecef ;border-top:0 ; padding: 5px ;padding-left: 6px;">{% for l in subjunctive %}{% if not loop.first %}<tt></tt>{% endif %}<span class="pronoun">{{ l.pronoun }} </span><tt></tt><span class="verb">{{ l.form }}</span><br>{% endfor %}
+
+              </td>
+            </tr>
+          </tbody></table></td>
+      </tr>
+    </tbody></table>
+
+</div>

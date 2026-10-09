@@ -1,9 +1,10 @@
-# build artifacts
+# build artifacts (the retired Go server's binaries)
 /dist/
 
-# python bytecode (web/)
+# python
 __pycache__/
 *.py[oc]
+/.venv/
 
 # tooling cache
 /.codemap/
@@ -11,10 +12,8 @@ __pycache__/
 # handoff scratch
 /PLAN_homonyms.md
 
-# dictionary content: generated from twanksta + author-edited on the host,
-# not code. Lives outside this repo (regenerate via cmd/migrate).
-# NOTE: internal/core/testdata/entries/ stays tracked (test fixtures) — the
-# leading slash anchors these to the dictionary/ root only.
+# Retired local data of the TOML backend / Go article route. The dictionary
+# content now lives in the Lexonomy SQLite, not in this repo.
 /entries/
 /articles/
 /assets/

@@ -1,0 +1,39 @@
+{#- Shared pieces of the legacy /more/ fragments. Markup captured verbatim from
+    the live site — do not "clean it up", the bundled app_n-min.js / CSS depend
+    on these class names and shapes. -#}
+
+{#- One gender's 4-case declension. t = {width, gender, rows: [{case, sg, pl}]} -#}
+{% macro subst(t) -%}
+<table id="subst"{% if t.width %} width="{{ t.width }}"{% endif %}>
+				<tbody>
+				<tr>
+					<th class="null">{{ t.gender }}</th>
+					<th class="hea2">sing</th>
+					<th class="hea2">plur</th>
+				</tr>
+				{% for r in t.rows %}<tr>
+					<th class="hea">{{ r.case }}</th>
+					<td><span class="verb">{{ r.sg }}</span>
+					</td>
+					<td><span class="verb">{{ r.pl }}</span></td>
+				</tr>
+				{% endfor %}</tbody>
+				</table>
+{%- endmacro %}
+
+{#- Collapsed headline + the three gender tables (verb participles, adjective
+    degrees). Keeps the legacy unbalanced </td> after the fem table. -#}
+{% macro spoiler_trio(s) -%}
+{% if s.closed %}					<span class="spoiler-title2 closed"><span class="arrow">&#9658; </span>					<span>{{ s.title }}</span></span>{% else %} <span class="spoiler-title2"><span class="arrow">&#9658; </span> 					<span>{{ s.title }}</span></span>{% endif %}
+
+<div class="spoiler-body2">
+		<table width="100%"><tr><td>
+			{{ subst(s.masc) }}</td>
+
+				<td>{{ subst(s.fem) }}
+			</td>
+			</td>
+
+				<td>{{ subst(s.neut) }}</td></tr>
+</table></div>
+{%- endmacro %}

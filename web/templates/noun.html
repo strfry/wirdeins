@@ -1,0 +1,6 @@
+{#- /more/ for a declension → injected into .spoiler-body. -#}
+<table id="subst">
+<tbody>
+<tr><th class="null">{{ gender }}</th><th class="hea2">sing</th><th class="hea2">plur</th></tr>
+{% for r in rows %}<tr><th class="hea">{{ r.case }}</th><td><span class="verb">{{ r.sg }}</span></td><td><span class="verb">{{ r.pl }}</span></td></tr>
+{% endfor %}</tbody></table>

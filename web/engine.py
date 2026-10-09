@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import os
 import sys
+import threading
 from pathlib import Path
 
 # .../prussian  (die fst- und dictionary-Repos liegen als Geschwister darin)
@@ -36,6 +37,14 @@ if str(FST_ROOT / "gen") not in sys.path:
     sys.path.insert(0, str(FST_ROOT / "gen"))
 
 import generator  # fst engine; re-exported below
+import compress_forms  # NVH reader + usable_stems (same as the analyzer bake)
+import build_analyzer  # entry_forms/classify_entry: the analyzer's own cell logic
 
-__all__ = ["FST_ROOT", "REPO", "fst_root", "generator"]
+# pyhfst-Lookup ist nicht als threadsicher dokumentiert (vgl.
+# src/prussian_fst/api.py:_PIPELINE_LOCK) — jeder Generator-Aufruf, egal ob aus
+# der Editor-API oder dem wirdeins-Adapter, läuft unter diesem einen Lock.
+LOCK = threading.Lock()
+
+__all__ = ["FST_ROOT", "LOCK", "REPO", "build_analyzer", "compress_forms",
+           "fst_root", "generator"]
 

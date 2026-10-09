@@ -7,9 +7,9 @@
   overrides round-trip.
 
   The flexion table comes from the real generator service, so run it first
-  (`make flexsrv`, default 127.0.0.1:8080; override with ?flex=URL below).
+  (`uv run python web/flexsrv.py`, default 127.0.0.1:8080; override with ?flex=URL below).
   Then serve this dir and open the file:
-      python3 -m http.server -d fst/lexonomy 8777   ->  http://localhost:8777/preview.html
+      python3 -m http.server -d web/editor 8777   ->  http://localhost:8777/preview.html
 
   A row of sample entries (noun/adj/verb, different paradigms) sits under the
   header; pick one to re-mount the editor on it.
