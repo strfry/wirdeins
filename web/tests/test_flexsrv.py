@@ -340,6 +340,40 @@ def test_empty_override_values_are_dropped(atoms):
     assert cells["sg.dat"] == "rule" and cells["sg.gen"] == "override"
 
 
+# ── Wortarten: invariable Klassen und pron/num über adj ──────────────────────
+
+def test_invariable_pos_cover_the_analyzer_vocabulary():
+    invariable = {pos for pos, family in editor_api.POS_FAMILY.items()
+                  if family is None} | {"pron", "num"}
+    assert invariable == set(engine.build_analyzer.INVARIABLE_TAG)
+
+
+@pytest.mark.parametrize("pos, tag", [("adv", "+Adv"), ("sconj", "+CS"),
+                                      ("noun", "indeclinable noun")])
+def test_invariable_entry_is_a_note_not_an_error(pos, tag):
+    res = editor_api.generate_payload(
+        {"headword": "kōnkretai", "pos": pos, "overrides": {"adv": "x"}})
+    assert res["tables"] == [] and res["pos"] == pos and tag in res["note"]
+    assert [c["source"] for c in res["slots"]] == ["override"]
+
+
+def test_pronoun_with_paradigm_inflects_like_an_adjective(atoms):
+    res = editor_api.generate_payload(
+        {"headword": "eraīns", "pos": "pron", "paradigm": "21"})
+    assert res["pos"] == "pron" and res["tables"]
+    assert forms_by_slot(res)["msc.sg.nom"] == "eraīns"
+
+
+def test_paradigms_of_a_numeral_are_the_adjective_ones():
+    keys = {p["paradigm"] for p in editor_api.paradigms_payload("num")}
+    assert keys == {k[1] for k in editor_api.gen.PARADIGMS if k[0] == "adj"}
+
+
+def test_paradigms_reject_an_invariable_pos():
+    with pytest.raises(editor_api.ApiError, match="invariable"):
+        editor_api.paradigms_payload("adv")
+
+
 # ── Fehler: die Meldung landet in der UI ─────────────────────────────────────
 
 def test_unknown_paradigm_is_a_note_not_an_error():
@@ -358,7 +392,7 @@ def test_unknown_paradigm_still_echoes_the_overrides():
 
 @pytest.mark.parametrize("request_, needle", [
     ({"pos": "noun", "paradigm": "53"}, "headword"),
-    ({"headword": "dumslē", "pos": "noun"}, "paradigm"),
+    ({"headword": "kails", "pos": "adj"}, "paradigm"),
     ({"headword": "dumslē", "pos": "quatsch-masc", "paradigm": "53"}, "POS"),
     ({"headword": "dumslē", "pos": "noun", "paradigm": "53",
       "gender": "quatsch"}, "unknown gender"),

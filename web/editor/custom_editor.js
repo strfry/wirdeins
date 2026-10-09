@@ -67,7 +67,7 @@
  *
  * FLEX_URL is overridable per deployment (Lexonomy config `editing.js` is
  * uploaded once, so the default points at the dev-local service; override in
- * the preview harness via `window.PFX_FLEX_URL`).
+ * a page via `window.PFX_FLEX_URL`).
  * =====================================================================
  */
 
@@ -108,6 +108,34 @@
 
    // pos "noun-masc" <-> {base:"noun", gender:"masc"}
    const GENDERED = { noun: true };
+
+   // Wortarten der NVH (fst WS3), 1:1 auf die FST-Tags. `inflects`: kann ein
+   // Paradigma tragen (pron/num P21–24 flektieren über die adj-Atome). Die übrigen
+   // sind invariabel. Kein `encl` — Enklise ist +Pron+Encl, keine Wortart.
+   const POS_TAGS = [
+      {v:"noun",  t:"noun",  fst:"+N",      inflects:true},
+      {v:"adj",   t:"adj — adjective", fst:"+A", inflects:true},
+      {v:"verb",  t:"verb",  fst:"+V",      inflects:true},
+      {v:"pron",  t:"pron — pronoun", fst:"+Pron", inflects:true},
+      {v:"num",   t:"num — numeral", fst:"+Num", inflects:true},
+      {v:"adv",   t:"adv — adverb", fst:"+Adv"},
+      {v:"prep",  t:"prep — preposition", fst:"+Pr"},
+      {v:"postp", t:"postp — postposition", fst:"+Po"},
+      {v:"intj",  t:"intj — interjection", fst:"+Interj"},
+      {v:"part",  t:"part — particle", fst:"+Pcle"},
+      {v:"cconj", t:"cconj — coordinating conjunction", fst:"+CC"},
+      {v:"sconj", t:"sconj — subordinating conjunction", fst:"+CS"},
+   ];
+   const NUMTYPE_POS = { noun: true, adj: true, num: true };
+   function posTag(base){ return POS_TAGS.find(p => p.v === base) || null; }
+   // Ohne Paradigma invariabel (wie fst build_analyzer.classify_entry):
+   // invariable Wortart oder indeklinables Nomen. Leere/unbekannte POS nicht.
+   function isInvariable(entry){
+      const base = entryPos(entry).base;
+      const tag = posTag(base);
+      if (!tag || entryParadigm(entry)) return false;
+      return !tag.inflects || base === "noun" || base === "pron" || base === "num";
+   }
    function splitPos(v) {
       const i = v.indexOf("-");
       if (i < 0) return { base: v, gender: "" };
@@ -143,6 +171,11 @@
       if (top) return top.value;
       const legacy = childByName(entry, "legacy");
       return legacy ? childValue(legacy, "paradigm", "") : "";
+   }
+   function setEntryNumtype(entry, value) {
+      const node = childByName(entry, "numtype");
+      if (value) setChildValue(entry, "numtype", value);
+      else if (node) removeNode(entry, node);
    }
    function setEntryParadigm(entry, value) {
       if (childByName(entry, "paradigm")) setChildValue(entry, "paradigm", value);
@@ -228,7 +261,7 @@
    // Local dev: the scratch service runs at 127.0.0.1:8080. Anywhere else the
    // service is exposed under the same origin at /flexsrv (Uberspace web
    // backend), so a relative URL works without per-deployment config.
-   // window.PFX_FLEX_URL overrides both (used by the preview harness).
+   // window.PFX_FLEX_URL overrides both.
    function defaultFlexUrl() {
       try {
          const host = (typeof location !== "undefined" && location.hostname) || "";
@@ -513,6 +546,7 @@
    }
 
    async function renderParadigm(container){
+      if (isInvariable(S.entry)) return;   // keine Formtabelle, kein /generate
       container.innerHTML = "";
       container.appendChild(el("div",{class:"pfx-muted",text:"Loading paradigm…"}));
       const posInfo = entryPos(S.entry);
@@ -577,10 +611,12 @@
          S.entry.value = v; emitChange(); renderParadigm(paraBox);
       })));
       const posInfo = entryPos(S.entry);
-      head.appendChild(field("POS", select(
-         [{v:"",t:"—"},{v:"noun",t:"noun"},{v:"verb",t:"verb"},{v:"adj",t:"adj"}], posInfo.base, base => {
+      const posOptions = [{v:"",t:"—"}].concat(POS_TAGS);
+      // Unbekannter NVH-Wert bleibt wählbar, sonst ginge er beim Speichern verloren.
+      if (posInfo.base && !posTag(posInfo.base)) posOptions.push({v:posInfo.base, t:posInfo.base});
+      head.appendChild(field("POS", select(posOptions, posInfo.base, base => {
             setEntryPos(S.entry, base, entryPos(S.entry).gender);
-            emitChange(); render(); // re-render: gender control visibility depends on base
+            emitChange(); render(); // re-render: gender/numtype/paradigm/inflection depend on base
          })));
       if (GENDERED[posInfo.base]){
          head.appendChild(field("Gender", select(
@@ -588,9 +624,27 @@
                setEntryPos(S.entry, entryPos(S.entry).base, g); emitChange(); renderParadigm(paraBox);
             })));
       }
-      head.appendChild(field("Paradigm", textInput(entryParadigm(S.entry), v => {
-         setEntryParadigm(S.entry, v); emitChange(); renderParadigm(paraBox);
-      })));
+      const numtype = childValue(S.entry, "numtype", "");
+      if (NUMTYPE_POS[posInfo.base] || numtype){
+         head.appendChild(field("Numtype", select(
+            [{v:"",t:"—"},{v:"card",t:"card"},{v:"ord",t:"ord"}], numtype, v => {
+               setEntryNumtype(S.entry, v); emitChange();
+            })));
+      }
+      const tag = posTag(posInfo.base);
+      if (!tag || tag.inflects || entryParadigm(S.entry)){
+         // Leer ⇄ gesetzt wechselt invariabel ⇄ flektierend: dann erst beim
+         // Verlassen des Felds neu aufbauen (render() mitten im Tippen nähme den Fokus).
+         const wasInvariable = isInvariable(S.entry);
+         const parInp = textInput(entryParadigm(S.entry), v => {
+            setEntryParadigm(S.entry, v); emitChange();
+            if (isInvariable(S.entry) === wasInvariable) renderParadigm(paraBox);
+         });
+         parInp.addEventListener("change", () => {
+            if (isInvariable(S.entry) !== wasInvariable) render();
+         });
+         head.appendChild(field("Paradigm", parInp));
+      }
       wrap.appendChild(head);
 
       if (!S.sense){
@@ -617,14 +671,23 @@
       wrap.appendChild(el("h6",{class:"pfx-h",text:"Translations"}));
       const trBox = el("div"); wrap.appendChild(trBox); renderTranslations(trBox);
 
-      wrap.appendChild(el("h6",{class:"pfx-h",text:"Inflection (generated)"}));
-      var paraBox = el("div", {class:"pfx-para"}); wrap.appendChild(paraBox);
+      const invariable = isInvariable(S.entry);
+      if (invariable){
+         // Kein Paradigma, keine Formtabelle → /generate gar nicht erst rufen.
+         wrap.appendChild(el("div", {class:"pfx-muted", text: posInfo.base === "noun"
+            ? "Indeclinable noun (no paradigm)"
+            : "Invariable — no paradigm (FST " + posTag(posInfo.base).fst + ")"}));
+         var paraBox = el("div"); // detached; renderParadigm returns early anyway
+      } else {
+         wrap.appendChild(el("h6",{class:"pfx-h",text:"Inflection (generated)"}));
+         var paraBox = el("div", {class:"pfx-para"}); wrap.appendChild(paraBox);
+      }
 
       wrap.appendChild(el("h6",{class:"pfx-h",text:"Attestations (read-only)"}));
       const exBox = el("div", {class:"pfx-exlist"}); wrap.appendChild(exBox); renderExamples(exBox);
 
       host.appendChild(wrap);
-      renderParadigm(paraBox);
+      if (!invariable) renderParadigm(paraBox);
    }
 
    const api = {

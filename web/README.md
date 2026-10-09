@@ -41,8 +41,7 @@ the analyzer recognises — there is one reading of `stemOverrides` /
   CSS depend on their shapes).
 - `wirdeins/` — the mirrored twanksta frontend served at `/`.
 - `editor/custom_editor.js|.css` — the editor (contract: `editor()` +
-  `getValue()`, plus `update()` / `destroy()` / `isValid`); `editor/preview.html`
-  — standalone harness with sample entries.
+  `getValue()`, plus `update()` / `destroy()` / `isValid`).
 - `paradigm_layout.py` — slot cells → table grid for the editor.
 - `engine.py` — locates the `fst` engine (`PRUSSIAN_FST_ROOT` or the sibling
   `../fst`), re-exports `generator`, `compress_forms`, `build_analyzer` and the
@@ -61,10 +60,8 @@ uv run python web/flexsrv.py --db ../lexonomy/data/dicts/prussian.sqlite
 #   → http://127.0.0.1:8080/  wirdeins, and the editor API on the same port
 uv run python web/flexsrv.py      # editor API only (no --db)
 uv run pytest                     # tests
-python3 -m http.server -d web/editor 8777   # → http://localhost:8777/preview.html
 ```
 
-`preview.html?flex=http://host:port` points the harness at another instance.
 `--host 0.0.0.0 --port …` to expose it; behind a reverse proxy the threaded
 stdlib server is enough, and the app is plain WSGI (`flexsrv.create_app`) for
 gunicorn & co.
@@ -110,6 +107,11 @@ Response:
   `none` is a grammar gap (still editable, an override fills it).
 - Unknown paradigm: `tables: []`, `slots` carries the overrides,
   `resolved: null` and a `note` instead of an error.
+- Invariable entries (an invariable POS, or a noun without paradigm — the same
+  rule as fst `build_analyzer.classify_entry`) are not an error: `tables: []`,
+  overrides echoed in `slots`, `note: "invariable (+Adv) — no inflection"`.
+  `pron`/`num` with a paradigm (P21–24) inflect through the adjective atoms;
+  the response keeps the entry's `pos`.
 - `stems` (Stufe 1) is the NVH `stemOverrides` round-trip; `overrides`
   (Stufe 2) is the per-cell `override` node.
 - Other endpoints: `GET /health`, `GET /paradigms?pos=noun`,
@@ -145,8 +147,9 @@ DMLex-flavoured NVH. :
 ```
 entry: <headword>
   id: <headword>|<paradigm>|<desc>     # composite key (read-only)
-  pos: noun                            # bare POS
+  pos: noun                            # bare POS (list below)
   gender: masc                         # separate node (nouns)
+  numtype: card                        # card|ord (numerals, ordinal adjectives)
   paradigm: 56                         # TOP-LEVEL (not under legacy)
   label: MK                            # 0..n source labels
   stemOverrides: obl=Patall pres=rusē  # Stufe 1, role=stem … (lean-NVH shape)
@@ -169,7 +172,15 @@ Design defaults adopted (all reversible):
 - **Single sense** — 0/9902 entries have ≥2 senses; if one ever does, the first
   is edited and the rest preserved untouched.
 - **pos/gender**: `pos` is the bare POS and `gender` a separate top-level node;
-  the editor reads/writes both (falls back to fused `noun-masc`).
+  the editor reads/writes both (falls back to fused `noun-masc`). POS list
+  (1:1 on the FST tags): `noun adj verb` (+N/+A/+V), `pron num` (+Pron/+Num;
+  with a paradigm they inflect like adjectives), and the invariable
+  `adv prep postp intj part cconj sconj` (+Adv/+Pr/+Po/+Interj/+Pcle/+CC/+CS).
+  No `encl` — enclisis is a pronoun feature (+Pron+Encl), not a POS.
+- **invariables**: no paradigm field (unless one is set), no inflection box and
+  no `/generate` call; just a one-line note.
+- **numtype** (`card|ord`): own select, shown for noun/adj/num or when set.
+  The Lexonomy structure schema needs `numtype: ? string`.
 - **paradigm** read/written at top-level `paradigm` (falls back to
   `legacy.paradigm`).
 - **Stufe 1 (delivered stems)**: entry-level scalar `stemOverrides: role=stem …`

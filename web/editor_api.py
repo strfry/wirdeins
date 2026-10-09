@@ -59,6 +59,11 @@ Kasus × Numerus je Genus, Adjektiv zusätzlich Steigerung/Adverb, Verb = Person
 Zeit/Wijs. Der Editor rendert ``tables``; ein unbekanntes Paradigma liefert
 ``tables: []`` und die Overrides weiterhin in ``slots``.
 
+Wortarten (``POS_FAMILY``): noun/adj/verb, pron/num (mit Paradigma über die
+adj-Atome) und die invariablen adv/prep/postp/intj/part/cconj/sconj. Ein
+invariabler Eintrag (invariable Wortart oder Nomen ohne Paradigma) ist kein
+Fehler: ``tables: []``, Overrides in ``slots``, ``note: "invariable (+Adv) — …"``.
+
 Gestartet wird der Dienst über ``flexsrv.py`` (zusammen mit dem
 wirdeins-Adapter). Voraussetzung: ``make atoms`` im fst-Repo; ``/health``
 sagt, was fehlt.
@@ -74,6 +79,7 @@ from typing import Any
 import bottle
 
 from engine import LOCK
+from engine import build_analyzer
 from engine import generator as gen
 from paradigm_layout import (
     build_tables,
@@ -86,7 +92,15 @@ from paradigm_layout import (
 __all__ = ["ApiError", "generate_payload", "health_payload", "install",
            "paradigms_payload", "role_label", "slot_label", "split_pos"]
 
-POS_CHOICES = ("noun", "adj", "verb")
+# NVH-Wortart → Flexionsfamilie des Generators (``None`` = invariabel). Vokabular
+# wie fst ``build_analyzer``: offene Klassen + ``INVARIABLE_TAG``; Pronomina/
+# Numeralia mit Formtabelle (P21–24) flektieren über die adj-Atome. Kein ``encl`` —
+# Enklise ist ein Pronomen-Merkmal (+Pron+Encl), keine Wortart.
+POS_FAMILY = {"noun": "noun", "adj": "adj", "verb": "verb",
+              "pron": "adj", "num": "adj",
+              "adv": None, "prep": None, "postp": None, "intj": None,
+              "part": None, "cconj": None, "sconj": None}
+POS_CHOICES = tuple(POS_FAMILY)
 
 # ── Anfrage → Response ───────────────────────────────────────────────────────
 
@@ -122,11 +136,25 @@ def _str_map(raw: Any, field: str) -> dict[str, str]:
     return out
 
 
+def is_invariable(pos: str, paradigm: str) -> bool:
+    """Ohne Paradigma invariabel — dieselbe Regel wie ``build_analyzer.classify_entry``
+    (invariable Wortart oder indeklinables Nomen); Wortarten ohne Familie immer."""
+    if POS_FAMILY.get(pos) is None:
+        return True
+    return not paradigm and (pos in build_analyzer.INVARIABLE_TAG or pos == "noun")
+
+
+def _override_cells(overrides: Mapping[str, str]) -> list[dict[str, Any]]:
+    return [{"slot": slot, "label": slot_label(slot), "group": slot_group(slot),
+             "role": None, "form": form, "ruleForms": [], "source": "override"}
+            for slot, form in overrides.items()]
+
+
 def generate_payload(request: Mapping[str, Any]) -> dict[str, Any]:
     """Der Endpoint-Kern — ohne HTTP, damit Tests ihn direkt aufrufen."""
     headword = _norm_lemma(str(request.get("headword") or ""))
     raw_pos = str(request.get("pos") or "")
-    pos, pos_gender = split_pos(raw_pos)
+    entry_pos, pos_gender = split_pos(raw_pos)
     gender = _norm_lemma(str(request.get("gender") or "")).lower() or pos_gender
     paradigm = str(request.get("paradigm") or "").strip()
     overrides = _str_map(request.get("overrides"), "overrides")
@@ -134,6 +162,18 @@ def generate_payload(request: Mapping[str, Any]) -> dict[str, Any]:
 
     if not headword:
         raise ApiError("headword is missing")
+    if is_invariable(entry_pos, paradigm):
+        tag = ("indeclinable noun" if entry_pos == "noun"
+               else build_analyzer.INVARIABLE_TAG.get(entry_pos, entry_pos))
+        return {
+            "lemma": headword, "pos": entry_pos, "gender": gender,
+            "paradigm": paradigm, "resolved": None, "family": None,
+            "stems": {}, "delivered": {}, "roles": [], "tables": [],
+            "slots": _override_cells(overrides),
+            "note": f"invariable ({tag}) — no inflection",
+        }
+    # pron/num flektieren über die adj-Atome; die Response behält die NVH-Wortart.
+    pos = POS_FAMILY[entry_pos]
     if not paradigm:
         raise ApiError("paradigm is missing (Twanksta paradigm number)")
     if gender and gender not in ("masc", "fem", "neut"):
@@ -147,15 +187,11 @@ def generate_payload(request: Mapping[str, Any]) -> dict[str, Any]:
             note = f"unknown paradigm {paradigm!r} for pos={pos!r}"
             # Overrides stay visible: an override is never "gone", just unproducible.
             return {
-                "lemma": headword, "pos": pos, "gender": gender,
+                "lemma": headword, "pos": entry_pos, "gender": gender,
                 "paradigm": paradigm, "resolved": None, "family": None,
                 "stems": {}, "delivered": {}, "roles": [], "note": note,
                 "tables": [],
-                "slots": [
-                    {"slot": slot, "label": slot_label(slot),
-                     "group": slot_group(slot), "role": None,
-                     "form": form, "ruleForms": [], "source": "override"}
-                    for slot, form in overrides.items()],
+                "slots": _override_cells(overrides),
             }
         bad_roles = [role for role in stems if role not in par.roles]
         if bad_roles:
@@ -199,7 +235,7 @@ def generate_payload(request: Mapping[str, Any]) -> dict[str, Any]:
         cells[slot] = extra[-1]
 
     return {
-        "lemma": headword, "pos": pos, "gender": gender,
+        "lemma": headword, "pos": entry_pos, "gender": gender,
         "paradigm": paradigm, "resolved": resolved, "family": par.family,
         "stems": used_stems,
         "delivered": dict(stems),
@@ -216,11 +252,13 @@ def generate_payload(request: Mapping[str, Any]) -> dict[str, Any]:
 
 def paradigms_payload(pos: str) -> list[dict[str, Any]]:
     """Paradigmen-Liste für die Auswahl im Editor (Vokabular, kein FST-Zugriff)."""
-    if pos not in POS_CHOICES:
-        raise ApiError(f"unknown POS {pos!r} (expected: {', '.join(POS_CHOICES)})")
+    family = POS_FAMILY.get(pos)
+    if not family:
+        raise ApiError(f"unknown or invariable POS {pos!r} "
+                       f"(expected: {', '.join(p for p, f in POS_FAMILY.items() if f)})")
     out = []
-    for (entry_pos, paradigm), par in sorted(gen.PARADIGMS.items()):
-        if entry_pos != pos:
+    for (par_pos, paradigm), par in sorted(gen.PARADIGMS.items()):
+        if par_pos != family:
             continue
         roles = []
         for role, spec in par.roles.items():
@@ -230,7 +268,7 @@ def paradigms_payload(pos: str) -> list[dict[str, Any]]:
                 for s in slots]})
         out.append({"pos": pos, "paradigm": paradigm, "family": par.family,
                     "roles": roles,
-                    "atoms": [gen.atom_name(pos, paradigm, role)
+                    "atoms": [gen.atom_name(family, paradigm, role)
                               for role in par.roles]})
     return out
 
@@ -300,11 +338,12 @@ def install(app: bottle.Bottle) -> None:
         pos = _query("pos").lower()
         paradigm = _query("paradigm")
         lemma = _query("lemma")
-        if pos not in POS_CHOICES:
-            raise ApiError("pos is missing (noun|adj|verb)")
-        resolved = gen.resolve_paradigm(pos, paradigm, lemma)
+        family = POS_FAMILY.get(pos)
+        if not family:
+            raise ApiError("pos is missing or invariable (noun|adj|verb|pron|num)")
+        resolved = gen.resolve_paradigm(family, paradigm, lemma)
         return {"pos": pos, "paradigm": paradigm, "resolved": resolved,
-                "slots": slot_meta(pos, resolved, lemma)}
+                "slots": slot_meta(family, resolved, lemma)}
 
     @app.post("/generate")
     @_api
