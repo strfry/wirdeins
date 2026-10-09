@@ -144,6 +144,12 @@ def is_invariable(pos: str, paradigm: str) -> bool:
     return not paradigm and (pos in build_analyzer.INVARIABLE_TAG or pos == "noun")
 
 
+def family_slots(family: str) -> set[str]:
+    """Slot-Vokabular einer Flexionsfamilie: Vereinigung über alle ihre Paradigmen."""
+    return {slot for (par_pos, _), par in gen.PARADIGMS.items() if par_pos == family
+            for spec in par.roles.values() for slot in spec.slots}
+
+
 def _override_cells(overrides: Mapping[str, str]) -> list[dict[str, Any]]:
     return [{"slot": slot, "label": slot_label(slot), "group": slot_group(slot),
              "role": None, "form": form, "ruleForms": [], "source": "override"}
@@ -186,12 +192,17 @@ def generate_payload(request: Mapping[str, Any]) -> dict[str, Any]:
         except KeyError:
             note = f"unknown paradigm {paradigm!r} for pos={pos!r}"
             # Overrides stay visible: an override is never "gone", just unproducible.
+            # Full grid of the family (union of all its known paradigms' slots),
+            # so every cell can take a form by hand even without any override yet.
+            slots = _override_cells(overrides)
             return {
                 "lemma": headword, "pos": entry_pos, "gender": gender,
                 "paradigm": paradigm, "resolved": None, "family": None,
                 "stems": {}, "delivered": {}, "roles": [], "note": note,
-                "tables": [],
-                "slots": _override_cells(overrides),
+                "unknownParadigm": True,
+                "tables": build_tables(pos, {c["slot"]: c for c in slots},
+                                       family_slots(pos) | set(overrides)),
+                "slots": slots,
             }
         bad_roles = [role for role in stems if role not in par.roles]
         if bad_roles:

@@ -273,12 +273,6 @@ def test_override_shows_up_in_the_table_cell(atoms):
         "deiwu", "override", ["Dēiwu"])
 
 
-def test_unknown_paradigm_has_no_tables():
-    res = editor_api.generate_payload(
-        {"headword": "quatsch", "pos": "noun", "paradigm": "99"})
-    assert res["tables"] == []
-
-
 def test_empty_cell_stays_in_the_table(atoms, monkeypatch):
     """Eine Lücke der Grammatik ist eine editierbare Zelle, keine fehlende.
 
@@ -388,6 +382,33 @@ def test_unknown_paradigm_still_echoes_the_overrides():
         {"headword": "quatsch", "pos": "noun", "paradigm": "99",
          "overrides": {"sg.nom": "quatsch"}})
     assert [c["source"] for c in res["slots"]] == ["override"]
+    assert res["unknownParadigm"] is True
+
+
+def test_unknown_paradigm_lays_the_overrides_out_as_tables():
+    res = editor_api.generate_payload(
+        {"headword": "bilītun", "pos": "verb", "paradigm": "134a",
+         "overrides": {"prs.sg1": "bilā", "zz.bogus": "x"}})
+    laid_out = {cell["slot"]: cell for table in res["tables"]
+                for block in table["blocks"] for row in block["cells"]
+                for cell in row if cell}
+    assert laid_out["prs.sg1"]["form"] == "bilā"
+    assert laid_out["prs.sg1"]["source"] == "override"
+    assert "zz.bogus" not in laid_out          # stray slot: flat list in the editor
+    assert "zz.bogus" in {c["slot"] for c in res["slots"]}
+
+
+@pytest.mark.parametrize("pos, slot", [("verb", "prs.sp3"), ("noun", "pl.gen"),
+                                       ("adj", "fem.sg.dat")])
+def test_unknown_paradigm_without_overrides_offers_the_full_grid(pos, slot):
+    """Kein Override, kein Generator: trotzdem jede Zelle von Hand befüllbar."""
+    res = editor_api.generate_payload(
+        {"headword": "quatsch", "pos": pos, "paradigm": "999z"})
+    laid_out = {cell["slot"]: cell for table in res["tables"]
+                for block in table["blocks"] for row in block["cells"]
+                for cell in row if cell}
+    assert laid_out[slot]["source"] == "none" and laid_out[slot]["form"] is None
+    assert set(laid_out) == editor_api.family_slots(pos)
 
 
 @pytest.mark.parametrize("request_, needle", [
