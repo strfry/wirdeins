@@ -561,6 +561,22 @@
       const res = await fetchForms(req);
       container.innerHTML = "";
       const tables = res.tables || [];
+      // Unbekanntes Paradigma: der Dienst kann nichts generieren und schickt nur
+      // die gespeicherten Overrides — das muss oben stehen, nicht als Fußnote.
+      const unknown = !res.resolved && !tables.length && !(res.roles || []).length && !!res.note;
+      if (unknown){
+         container.appendChild(el("div", {class:"pfx-note pfx-warn", text:
+            "Paradigm " + (req.paradigm || "—") + " is not known to the inflection service, "
+            + "so no forms can be generated. "
+            + (res.slots.length
+               ? "Below are only the " + res.slots.length + " stored override form(s) of this entry."
+               : "This entry has no stored override forms.")}));
+         if (res.slots.length){
+            container.appendChild(el("div", {class:"pfx-stemhead", text:"Stored overrides"}));
+            container.appendChild(renderFlat(res, container));
+         }
+         return;
+      }
       // Stufe-1-Stammboxen kommen aus den Generator-Rollen (Regel-Default je
       // Rolle) — auch ohne vorhandenen Override, damit man einen anlegen kann.
       const stems = renderStems(res, container);

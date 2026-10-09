@@ -117,3 +117,4 @@
    background: #fff8e6; border: 1px solid #f0e0b0; border-radius: 6px;
    padding: 8px 12px; color: #7a6a3a; font-size: 13px; margin-top: 12px;
 }
+.pfx-warn { margin: 0 0 12px; border-color: #e0b060; color: #6a4a10; }
