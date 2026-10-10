@@ -578,6 +578,22 @@
       // Unbekanntes Paradigma: Meldung oben, nicht als Fußnote.
       const unknown = !!res.unknownParadigm;
       if (unknown) container.appendChild(el("div", {class:"pfx-note pfx-warn", text:res.note}));
+      // Overrides gleich der Regelform: oben anbieten, mit einem Klick zu entfernen.
+      const redundant = (res.slots || []).filter(isRedundant);
+      if (redundant.length){
+         const line = el("div", {class:"pfx-note pfx-warn pfx-redundant-note",
+            text: redundant.length + " override(s) equal the generated form "});
+         if (!S.readOnly){
+            const drop = el("button", {class:"pfx-add", text:"Remove all"});
+            drop.addEventListener("click", () => {
+               redundant.forEach(cell => setOverride(S.entry, cell.slot, ""));
+               emitChange();
+               renderParadigm(container);
+            });
+            line.appendChild(drop);
+         }
+         container.appendChild(line);
+      }
       // Stufe-1-Stammboxen kommen aus den Generator-Rollen (Regel-Default je
       // Rolle) — auch ohne vorhandenen Override, damit man einen anlegen kann.
       const stems = renderStems(res, container);
@@ -608,26 +624,7 @@
       if (res.resolved && res.resolved !== res.paradigm) {
          bits.push("paradigm " + res.paradigm + " → " + res.resolved);
       }
-      if (res.stems) {
-         Object.keys(res.stems).forEach(role => {
-            if (res.stems[role]) bits.push("stem " + role + " = " + res.stems[role]);
-         });
-      }
       if (bits.length) container.appendChild(el("div",{class:"pfx-muted",text:bits.join(" · ")}));
-      const redundant = (res.slots || []).filter(isRedundant);
-      if (redundant.length){
-         const line = el("div", {class:"pfx-muted", text: redundant.length + " override(s) = rule "});
-         if (!S.readOnly){
-            const drop = el("button", {class:"pfx-add", text:"Remove"});
-            drop.addEventListener("click", () => {
-               redundant.forEach(cell => setOverride(S.entry, cell.slot, ""));
-               emitChange();
-               renderParadigm(container);
-            });
-            line.appendChild(drop);
-         }
-         container.appendChild(line);
-      }
       if (res.note && !unknown) container.appendChild(el("div",{class:"pfx-note",text:res.note}));
    }
 
