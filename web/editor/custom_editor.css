@@ -49,6 +49,7 @@
 .pfx-cellform { font-weight: 600; }
 .pfx-cellform .pfx-badge { margin-left: 6px; }
 .pfx-cell.pfx-over .pfx-cellform { color: #b4690e; }
+.pfx-cell.pfx-redundant .pfx-cellform { color: #2e7d32; }
 .pfx-cell.pfx-gap .pfx-cellform { color: #bbb; font-weight: 400; font-style: italic; }
 .pfx-cell .pfx-ov { width: 100%; margin-top: 3px; box-sizing: border-box; }
 
@@ -81,6 +82,7 @@
 .pfx-b-rule { background: #eef2f5; color: #557; }
 .pfx-b-over { background: #fbe8cf; color: #b4690e; }
 .pfx-b-gap { background: #f5f5f5; color: #999; }
+.pfx-b-redundant { background: #e3f4e1; color: #2e7d32; }
 
 .pfx-ov { width: 130px; border: 1px solid #ddd; border-radius: 4px; padding: 3px 6px; }
 .pfx-ov::placeholder { color: #bbb; font-style: italic; }

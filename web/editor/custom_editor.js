@@ -391,10 +391,20 @@
    // override, an empty box clears it back to the rule default, Escape reverts.
    // A cell the grammar leaves empty ("none") is editable too.
 
-   function sourceClass(source){
+   // Override, das nichts ändert: die Regel liefert genau diese Form (ohne Varianten).
+   function isRedundant(cell){
+      const rule = cell.ruleForms || [];
+      return cell.source === "override" && rule.length === 1 && rule[0] === cell.form;
+   }
+   function sourceClass(cell){
+      if (isRedundant(cell)) return "pfx-redundant";
+      const source = cell.source;
       return source === "override" ? "pfx-over" : source === "rule" ? "pfx-rule" : "pfx-gap";
    }
-   function sourceBadge(source){
+   function sourceBadge(cell){
+      if (isRedundant(cell)) return el("span", {class: "pfx-badge pfx-b-redundant", text: "= rule",
+         title: "override equals the generated form — can be removed"});
+      const source = cell.source;
       const text = source === "override" ? "override" : source === "rule" ? "rule" : "gap";
       const cls = source === "override" ? "pfx-b-over" : source === "rule" ? "pfx-b-rule" : "pfx-b-gap";
       return el("span", {class: "pfx-badge " + cls, text: text});
@@ -411,14 +421,14 @@
       renderParadigm(container);
    }
    function renderGridCell(cell, container){
-      const td = el("td", {class: "pfx-cell " + sourceClass(cell.source), title: cell.slot});
+      const td = el("td", {class: "pfx-cell " + sourceClass(cell), title: cell.slot});
       const line = el("div", {class: "pfx-cellform"});
       const display = el("span", {class: "pfx-cellval", text: cell.form || "—"});
       display.title = S.readOnly ? cell.slot
          : (cell.ruleForms && cell.ruleForms.length ? "rule: " + cell.ruleForms.join(" | ") : cell.slot)
            + " — click to edit";
       line.appendChild(display);
-      line.appendChild(sourceBadge(cell.source));
+      line.appendChild(sourceBadge(cell));
       td.appendChild(line);
 
       function edit(){
@@ -477,8 +487,8 @@
       table.appendChild(el("tr", null, [
          el("th",{text:"Slot"}), el("th",{text:"Form"}), el("th",{text:"Override"})]));
       res.slots.forEach(cell => {
-         const formCell = el("td", {class: "pfx-form " + sourceClass(cell.source), text: cell.form || "—"});
-         formCell.appendChild(sourceBadge(cell.source));
+         const formCell = el("td", {class: "pfx-form " + sourceClass(cell), text: cell.form || "—"});
+         formCell.appendChild(sourceBadge(cell));
          const inp = el("input", {type: "text", class: "pfx-ov",
             placeholder: (cell.ruleForms && cell.ruleForms.length)
                ? cell.ruleForms.join(" | ") : "override",
@@ -591,6 +601,8 @@
       // Provenienzzeile: was der Generator aufgelöst hat (Verb 87 → 87a/87b).
       const bits = [];
       if (res.family) bits.push("family " + res.family);
+      const redundant = (res.slots || []).filter(isRedundant).length;
+      if (redundant) bits.push(redundant + " override(s) = rule");
       if (res.resolved && res.resolved !== res.paradigm) {
          bits.push("paradigm " + res.paradigm + " → " + res.resolved);
       }
