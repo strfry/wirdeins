@@ -557,6 +557,9 @@
 
    async function renderParadigm(container){
       if (isInvariable(S.entry)) return;   // keine Formtabelle, kein /generate
+      // Höhe halten, bis die neue Tabelle steht — sonst kollabiert der Bereich
+      // auf die Ladezeile und die Seite springt (z. B. nach Enter im Override).
+      container.style.minHeight = container.offsetHeight + "px";
       container.innerHTML = "";
       container.appendChild(el("div",{class:"pfx-muted",text:"Loading paradigm…"}));
       const posInfo = entryPos(S.entry);
@@ -570,6 +573,7 @@
       };
       const res = await fetchForms(req);
       container.innerHTML = "";
+      container.style.minHeight = "";   // Neuaufbau ist synchron, kein Repaint dazwischen
       const tables = res.tables || [];
       // Unbekanntes Paradigma: Meldung oben, nicht als Fußnote.
       const unknown = !!res.unknownParadigm;
@@ -601,8 +605,6 @@
       // Provenienzzeile: was der Generator aufgelöst hat (Verb 87 → 87a/87b).
       const bits = [];
       if (res.family) bits.push("family " + res.family);
-      const redundant = (res.slots || []).filter(isRedundant).length;
-      if (redundant) bits.push(redundant + " override(s) = rule");
       if (res.resolved && res.resolved !== res.paradigm) {
          bits.push("paradigm " + res.paradigm + " → " + res.resolved);
       }
@@ -612,6 +614,20 @@
          });
       }
       if (bits.length) container.appendChild(el("div",{class:"pfx-muted",text:bits.join(" · ")}));
+      const redundant = (res.slots || []).filter(isRedundant);
+      if (redundant.length){
+         const line = el("div", {class:"pfx-muted", text: redundant.length + " override(s) = rule "});
+         if (!S.readOnly){
+            const drop = el("button", {class:"pfx-add", text:"Remove"});
+            drop.addEventListener("click", () => {
+               redundant.forEach(cell => setOverride(S.entry, cell.slot, ""));
+               emitChange();
+               renderParadigm(container);
+            });
+            line.appendChild(drop);
+         }
+         container.appendChild(line);
+      }
       if (res.note && !unknown) container.appendChild(el("div",{class:"pfx-note",text:res.note}));
    }
 
