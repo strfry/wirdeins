@@ -65,6 +65,17 @@ def entry_cells(entry: Entry) -> dict[str, tuple[str, ...]]:
     return {slot: tuple(sorted(forms)) for slot, forms in cells.items() if forms}
 
 
+def display_cells(entry: Entry) -> dict[str, tuple[str, ...]]:
+    """``entry_cells`` für die Anzeige: Reflexiva („… si“) tragen die Partikel an
+    jeder Form wie im Original (``perwaidinna si``); Generator und Analyzer
+    arbeiten auf der nackten Form (``build_analyzer.split_si``)."""
+    cells = entry_cells(entry)
+    if not ba.split_si(entry.morph.lemma)[1]:
+        return cells
+    return {slot: tuple(f"{form} si" for form in forms)
+            for slot, forms in cells.items()}
+
+
 def _cell(cells: Cells, slot: str) -> str:
     """Anzeige einer Zelle; Varianten eines Slots stehen nebeneinander."""
     return ", ".join(cells.get(slot, ()))
@@ -168,7 +179,7 @@ def render_forms(entry: Entry) -> str:
     if view is None:
         return ""
     return _templates.get_template(f"{entry.family}.html").render(
-        **view(entry, entry_cells(entry)))
+        **view(entry, display_cells(entry)))
 
 
 # ── Fragmente ────────────────────────────────────────────────────────────────

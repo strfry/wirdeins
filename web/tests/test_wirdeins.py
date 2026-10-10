@@ -153,6 +153,34 @@ def test_more_uses_the_analyzer_cells_including_overrides(live):
     assert cells["prt.sg1"] == ("kalbēi",)
 
 
+REFLEXIVE = """\
+entry: perwaidīntun si
+  id: perwaidīntun_si
+  pos: verb
+  paradigm: 85
+  sense:
+    en: to appear
+  stemOverrides: pres=perwaidinn nonfin=perwaidīn partPresAct=perwaidinānt partPerfAct=perwaidinn partPerfPass=perwaidīnt
+"""
+
+
+def test_more_shows_the_reflexive_particle_on_every_form(tmp_path):
+    path = tmp_path / "refl.sqlite"
+    write_db(path, [REFLEXIVE])
+    live = store.LiveStore(path)
+    try:
+        entry, = live.current.lookup("perwaidīntun si")
+        # Analyzer-Zellen bleiben nackt, nur die Anzeige trägt „si“ (wie twanksta).
+        assert wirdeins.entry_cells(entry)["prs.sg1"] == ("perwaidinna",)
+        html = wirdeins.render_more(live.current, "perwaidīntun si")
+    finally:
+        live.stop()
+    for form in ("perwaidinna", "perwaidinnimai", "perwaidīnsei", "perwaidinnais",
+                 "perwaidinānts", "perwaidinnuns"):
+        assert f"{form} si" in html
+    assert re.search(r"perwaidin\w*(?!\w| si)", html) is None
+
+
 def test_more_picks_the_clicked_homonym(live):
     s = live.current
     first = wirdeins.render_more(s, "wilnis", numb="40", desc="[Wilnis E 477]")
