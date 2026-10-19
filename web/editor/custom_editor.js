@@ -299,7 +299,8 @@
 
    // -------------------------------- Editor --------------------------------
 
-   const S = { root:null, entry:null, sense:null, onChange:()=>{}, readOnly:false };
+   const S = { root:null, entry:null, sense:null, onChange:()=>{}, readOnly:false,
+               particle:"" };
 
    function unwrap(node){ return (node && node.jquery) ? node[0] : (node[0] || node); }
    function emitChange(){ S.onChange && S.onChange(); }
@@ -391,6 +392,17 @@
    // override, an empty box clears it back to the rule default, Escape reverts.
    // A cell the grammar leaves empty ("none") is editable too.
 
+   // Reflexiva („laikātun si“): /generate liefert particle "si". Es steht nur in
+   // der Anzeige (wie wirdeins.display_cells) — Formen, Stämme und Overrides
+   // bleiben im NVH nackt; eine mitgetippte Partikel wird vor dem Speichern entfernt.
+   function shown(form){ return form && S.particle ? form + " " + S.particle : form; }
+   function bare(value){
+      value = (value || "").trim();
+      const tail = " " + S.particle;
+      return S.particle && value.endsWith(tail) ? value.slice(0, -tail.length).trim() : value;
+   }
+   function particleTag(){ return el("span", {class: "pfx-particle", text: S.particle}); }
+
    // Override, das nichts ändert: die Regel liefert genau diese Form (ohne Varianten).
    function isRedundant(cell){
       const rule = cell.ruleForms || [];
@@ -411,7 +423,7 @@
    }
    // Stufe-2-Schreibpfad: leerer Wert oder gleich der Regelform ⇒ kein Override.
    function commitOverride(cell, value, container){
-      value = (value || "").trim();
+      value = bare(value);
       const dflt = (cell.ruleForms && cell.ruleForms[0]) || "";
       const next = (value === "" || value === dflt) ? "" : value;
       const current = cell.source === "override" ? cell.form : "";
@@ -423,7 +435,7 @@
    function renderGridCell(cell, container){
       const td = el("td", {class: "pfx-cell " + sourceClass(cell), title: cell.slot});
       const line = el("div", {class: "pfx-cellform"});
-      const display = el("span", {class: "pfx-cellval", text: cell.form || "—"});
+      const display = el("span", {class: "pfx-cellval", text: shown(cell.form) || "—"});
       display.title = S.readOnly ? cell.slot
          : (cell.ruleForms && cell.ruleForms.length ? "rule: " + cell.ruleForms.join(" | ") : cell.slot)
            + " — click to edit";
@@ -440,6 +452,7 @@
             ? cell.ruleForms.join(" | ") : "form";
          inp.title = cell.slot + " — Enter=apply, empty=default, Esc=cancel";
          td.appendChild(inp);
+         if (S.particle) td.appendChild(particleTag());
          inp.focus();
          inp.select();
          let settled = false;
@@ -487,7 +500,7 @@
       table.appendChild(el("tr", null, [
          el("th",{text:"Slot"}), el("th",{text:"Form"}), el("th",{text:"Override"})]));
       res.slots.forEach(cell => {
-         const formCell = el("td", {class: "pfx-form " + sourceClass(cell), text: cell.form || "—"});
+         const formCell = el("td", {class: "pfx-form " + sourceClass(cell), text: shown(cell.form) || "—"});
          formCell.appendChild(sourceBadge(cell));
          const inp = el("input", {type: "text", class: "pfx-ov",
             placeholder: (cell.ruleForms && cell.ruleForms.length)
@@ -572,6 +585,7 @@
          overrides: overridesMap(S.entry),
       };
       const res = await fetchForms(req);
+      S.particle = res.particle || "";
       container.innerHTML = "";
       container.style.minHeight = "";   // Neuaufbau ist synchron, kein Repaint dazwischen
       const tables = res.tables || [];

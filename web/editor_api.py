@@ -34,7 +34,7 @@ Endpunkte (als bottle-Routen, ``install(app)``)::
 
 Response::
 
-    {"lemma": …, "pos": "noun", "gender": "masc", "paradigm": "36",
+    {"lemma": …, "pos": "noun", "gender": "masc", "particle": null, "paradigm": "36",
      "resolved": "36", "family": "astem", "stems": {"obl": "dēiw"},
      "delivered": {"obl": "dēiw"},
      "roles": [{"role": "obl", "label": "Obliquer/Nominalstamm",
@@ -47,6 +47,10 @@ Response::
                  "rows": ["Nominativ", …],
                  "cells": [[{…cell…}, …], …]}]}],
      "note": "unknown paradigm '99' for pos='noun'"}
+
+``particle`` ist ``"si"`` bei reflexivem Kopfwort (``laikātun si``), sonst ``null``:
+der Editor hängt es an jede angezeigte Form (wie ``wirdeins.display_cells``);
+``form``/``ruleForms``/Overrides bleiben ohne Partikel.
 
 ``roles`` ist die Stufe-1-Sicht: je Rolle der wirksame ``stem``, der Regel-
 ``default`` (ohne gelieferten Stamm) und ``source`` (``stem``/``rule``) — daraus
@@ -136,6 +140,12 @@ def _str_map(raw: Any, field: str) -> dict[str, str]:
     return out
 
 
+def _particle(headword: str) -> str | None:
+    """``"si"`` für Reflexiva (``laikātun si``): nur Anzeige — Formen, Stämme und
+    Overrides bleiben nackt, wie im NVH und im Generator (``split_si``)."""
+    return "si" if gen.split_si(headword)[1] else None
+
+
 def is_invariable(pos: str, paradigm: str) -> bool:
     """Ohne Paradigma invariabel — dieselbe Regel wie ``build_analyzer.classify_entry``
     (invariable Wortart oder indeklinables Nomen); Wortarten ohne Familie immer."""
@@ -173,6 +183,7 @@ def generate_payload(request: Mapping[str, Any]) -> dict[str, Any]:
                else build_analyzer.INVARIABLE_TAG.get(entry_pos, entry_pos))
         return {
             "lemma": headword, "pos": entry_pos, "gender": gender,
+            "particle": _particle(headword),
             "paradigm": paradigm, "resolved": None, "family": None,
             "stems": {}, "delivered": {}, "roles": [], "tables": [],
             "slots": _override_cells(overrides),
@@ -197,6 +208,7 @@ def generate_payload(request: Mapping[str, Any]) -> dict[str, Any]:
             slots = _override_cells(overrides)
             return {
                 "lemma": headword, "pos": entry_pos, "gender": gender,
+                "particle": _particle(headword),
                 "paradigm": paradigm, "resolved": None, "family": None,
                 "stems": {}, "delivered": {}, "roles": [], "note": note,
                 "unknownParadigm": True,
@@ -215,8 +227,9 @@ def generate_payload(request: Mapping[str, Any]) -> dict[str, Any]:
             raise ApiError("generator atoms are missing — run `make atoms`") from None
         except ValueError as exc:
             if "STEM_ALPHABET" in str(exc):
-                raise ApiError("a delivered stem contains characters outside "
-                               "the allowed alphabet") from None
+                kind = "delivered" if "geliefert" in str(exc) else "rule"
+                raise ApiError(f"a {kind} stem contains characters outside "
+                               f"the allowed alphabet ({exc})") from None
             raise ApiError(str(exc)) from None
         defaults = gen.default_stems(pos, paradigm, lemma=headword)
         used_stems = dict(defaults)
@@ -247,6 +260,7 @@ def generate_payload(request: Mapping[str, Any]) -> dict[str, Any]:
 
     return {
         "lemma": headword, "pos": entry_pos, "gender": gender,
+        "particle": _particle(headword),
         "paradigm": paradigm, "resolved": resolved, "family": par.family,
         "stems": used_stems,
         "delivered": dict(stems),

@@ -141,6 +141,29 @@ def test_verb_variant_87_is_resolved_from_the_lemma(atoms):
     assert res["paradigm"] == "87" and res["resolved"] == "87a"
 
 
+def test_reflexive_headword_generates_like_the_bare_verb(atoms):
+    # „laikātun si“: Partikel ist kein Stammteil — ohne gelieferte Stämme dieselben
+    # Regelformen wie „laikātun“; „si“ kommt nur als Anzeige-Feld mit.
+    refl = editor_api.generate_payload(
+        {"headword": "laikātun si", "pos": "verb", "paradigm": "142"})
+    plain = editor_api.generate_payload(
+        {"headword": "laikātun", "pos": "verb", "paradigm": "142"})
+    assert forms_by_slot(refl) == forms_by_slot(plain)
+    assert forms_by_slot(refl)["prs.sp3"]
+    assert (refl["particle"], plain["particle"]) == ("si", None)
+    fixed = editor_api.generate_payload(
+        {"headword": "laikātun si", "pos": "verb", "paradigm": "142",
+         "stems": {"pres": "lāik"}})
+    assert forms_by_slot(fixed)["prs.sp3"] == "lāika"
+
+
+def test_bad_stem_names_its_source(atoms):
+    with pytest.raises(editor_api.ApiError, match="a delivered stem"):
+        editor_api.generate_payload(
+            {"headword": "laikātun", "pos": "verb", "paradigm": "142",
+             "stems": {"pres": "lāik1"}})
+
+
 def test_delivered_stem_overrides_the_rule(atoms):
     res = editor_api.generate_payload(
         {"headword": "Patals", "pos": "noun-masc", "paradigm": "32",

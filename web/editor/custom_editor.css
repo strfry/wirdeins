@@ -87,6 +87,7 @@
 
 .pfx-ov { width: 130px; border: 1px solid #ddd; border-radius: 4px; padding: 3px 6px; }
 .pfx-ov::placeholder { color: #bbb; font-style: italic; }
+.pfx-particle { color: #888; margin-left: 4px; }   /* Reflexivpartikel neben der Override-Box */
 
 .pfx-muted { color: #999; font-size: 12px; margin-top: 8px; }
 
